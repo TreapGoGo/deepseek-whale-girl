@@ -24,8 +24,8 @@ img { display: block; max-width: 100%; }
 .site-shell { max-width: 1440px; margin: 0 auto; overflow: hidden; background: var(--paper); }
 .topbar { min-height: 76px; padding: 18px clamp(22px, 5vw, 76px); display: flex; align-items: center; justify-content: space-between; gap: 28px; border-bottom: 1px solid rgba(216, 224, 239, .9); background: rgba(246, 248, 252, .92); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(16px); }
 .brand { display: flex; align-items: center; gap: 12px; min-width: max-content; }
-.brand-mark { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 13px; background: var(--blue-deep); }
-.brand-mark svg { width: 28px; height: 28px; fill: #bfe5ff; stroke: #bfe5ff; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.brand-mark { display: block; width: 42px; height: 42px; flex: none; }
+.brand-mark img { display: block; width: 100%; height: 100%; object-fit: contain; }
 .brand strong { display: block; font-family: var(--font-sans); font-size: 18px; font-weight: 750; letter-spacing: .1em; line-height: 1.15; }
 .brand small { display: block; margin-top: 2px; color: var(--ink-soft); font-size: 9px; letter-spacing: .14em; line-height: 1; }
 .nav { display: flex; gap: clamp(18px, 3vw, 42px); color: var(--ink-soft); font-size: 14px; }

@@ -23,7 +23,7 @@ python -m http.server 4173 --directory site
 - site/contribute.html：面向所有社区成员的贡献方式
 - site/assets/：网页使用的角色设定图和社区作品
 - site/assets/gallery/：画廊图片
-- characters/：角色设定图原始归档
+- characters/：角色设定图与品牌标志原始归档
 - .github/ISSUE_TEMPLATE/：无需提交代码的网页投稿表单
 - .github/workflows/pages.yml：将 site/ 部署到 GitHub Pages
 
