@@ -71,3 +71,7 @@ python -m http.server 4173 --directory site
 角色设定图、社区投稿及外部项目素材不包含在上述代码许可中，分别遵循其作者或来源的授权说明；在使用图片前，请先核实对应许可。收录不代表本站拥有相关作品版权，也不代表获得再次使用授权。如某个文件另有许可说明，以该文件说明为准。
 
 如认为网站展示的内容涉及侵权，请通过[反馈表单](https://github.com/TreapGoGo/deepseek-whale-girl/issues/new?template=feedback.yml)联系维护者。
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/image?repos=TreapGoGo/deepseek-whale-girl&type=Date)](https://www.star-history.com/#TreapGoGo/deepseek-whale-girl&Date)

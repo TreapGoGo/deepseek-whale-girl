@@ -103,7 +103,6 @@ const lightboxImage = document.querySelector('#lightbox-image');
 const lightboxCaption = document.querySelector('#lightbox-caption');
 const lightboxCopyButton = document.querySelector('.lightbox-copy-button');
 const lightboxDownloadLink = document.querySelector('.lightbox-download-link');
-const lightboxCloseButton = document.querySelector('.lightbox-close');
 
 function openLightbox(image) {
   if (!lightbox || !image) return;
@@ -120,9 +119,9 @@ function openLightbox(image) {
 
 if (lightbox) {
   bindImageCopyButton(lightboxCopyButton);
-  lightboxCloseButton.addEventListener('click', () => lightbox.close());
   lightbox.addEventListener('click', (event) => {
-    if (event.target === lightbox) lightbox.close();
+    if (event.target === lightboxImage || event.target.closest('.lightbox-actions')) return;
+    lightbox.close();
   });
   lightbox.addEventListener('close', () => {
     document.body.classList.remove('lightbox-open');
