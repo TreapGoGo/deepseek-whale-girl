@@ -132,16 +132,28 @@ if (lightbox) {
 const gallery = document.querySelector('.masonry-gallery');
 
 if (gallery) {
-  const communityWork = document.createElement('a');
-  const communityImage = document.createElement('img');
-  communityWork.href = './assets/gallery/community-2026-09-29.jpg';
-  communityWork.target = '_blank';
-  communityWork.rel = 'noreferrer';
-  communityImage.src = communityWork.href;
-  communityImage.alt = '鲸鱼娘社区二创作品（2026-09-29）';
-  communityImage.loading = 'eager';
-  communityWork.append(communityImage);
-  gallery.append(communityWork);
+  const communityWorks = [
+    { src: './assets/gallery/community-2026-09-29.jpg', alt: '鲸鱼娘社区二创作品（2026-09-29）' },
+    { src: './assets/gallery/meme-26.webp', alt: '鲸鱼娘大冒险、偷懒与跳脸梗图' },
+    { src: './assets/gallery/meme-27.webp', alt: '鲸鱼娘误触飞行模式后网络中断的漫画' },
+    { src: './assets/gallery/meme-28.webp', alt: '鲸鱼娘与用户互动的连续漫画' },
+    { src: './assets/gallery/meme-29.webp', alt: '鲸鱼娘先去吃饭的测试梗图' },
+    { src: './assets/gallery/meme-30.webp', alt: '鲸鱼娘把 DeepSeek 鲸鱼标志认成自己的漫画' },
+    { src: './assets/gallery/meme-31.webp', alt: '鲸鱼娘偷偷玩中文 Wordle 的漫画' },
+  ];
+
+  communityWorks.forEach(({ src, alt }, index) => {
+    const work = document.createElement('a');
+    const image = document.createElement('img');
+    work.href = src;
+    work.target = '_blank';
+    work.rel = 'noreferrer';
+    image.src = src;
+    image.alt = alt;
+    image.loading = index === 0 ? 'eager' : 'lazy';
+    work.append(image);
+    gallery.append(work);
+  });
   const galleryCount = document.querySelector('.gallery-heading > span');
   if (galleryCount) {
     galleryCount.textContent = `${gallery.querySelectorAll(':scope > a').length} 张社区作品`;
