@@ -13,6 +13,7 @@
 
 <p align="center">
   <a href="https://github.com/TreapGoGo/deepseek-whale-girl/actions/workflows/pages.yml"><img src="https://github.com/TreapGoGo/deepseek-whale-girl/actions/workflows/pages.yml/badge.svg" alt="GitHub Pages 部署状态" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License" /></a>
 </p>
 
 本项目由社区自发维护，是围绕鲸鱼娘形象整理的非官方资源库，不代表深度求索公司或 DeepSeek 官方立场。鲸鱼娘是社区共同创作、不断变化的形象；本站提供参考，不设定唯一或标准化人设。
@@ -63,8 +64,10 @@ python -m http.server 4173 --directory site
 
 推送到 `main` 分支后，GitHub Actions 会自动将 `site/` 部署到 GitHub Pages；也可以在仓库的 Actions 页面手动触发部署。
 
-## 内容与许可
+## 代码、内容与素材许可
 
-网站原创文字与生成提示词按 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) 共享。角色设定图、社区投稿及外部项目素材遵循各自作者或来源的授权说明；在使用图片前，请先核实对应许可。收录不代表本站拥有相关作品版权，也不代表获得再次使用授权。该许可不自动适用于网站源代码；目前仓库尚未为源代码单独声明许可证。
+本仓库网站源代码按 [MIT License](LICENSE) 授权。网站原创说明文字与生成提示词按 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) 共享。
+
+角色设定图、社区投稿及外部项目素材不包含在上述代码许可中，分别遵循其作者或来源的授权说明；在使用图片前，请先核实对应许可。收录不代表本站拥有相关作品版权，也不代表获得再次使用授权。如某个文件另有许可说明，以该文件说明为准。
 
 如认为网站展示的内容涉及侵权，请通过[反馈表单](https://github.com/TreapGoGo/deepseek-whale-girl/issues/new?template=feedback.yml)联系维护者。
