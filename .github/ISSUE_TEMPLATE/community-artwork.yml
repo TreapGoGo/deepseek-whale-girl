@@ -1,0 +1,49 @@
+name: 分享社区作品
+description: 投稿梗图、插画、贴纸或其他鲸鱼娘二创
+title: "[社区作品] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        欢迎投稿！你不需要提交代码。填完下面的信息后，可以在提交前或提交后把图片拖进补充说明框。
+  - type: input
+    id: work-name
+    attributes:
+      label: 作品名称或简短说明
+      placeholder: 例如：今天的鲸鱼娘也在努力省 Token
+    validations:
+      required: true
+  - type: input
+    id: author
+    attributes:
+      label: 作者
+      description: 请填写你的名字/账号；如果是他人作品，请填写原作者。不清楚时写“作者未知”。
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: 原始来源链接
+      description: 原帖或原图链接；原创作品可填写“本人原创”。
+      placeholder: https://...
+    validations:
+      required: true
+  - type: dropdown
+    id: permission
+    attributes:
+      label: 分享与展示许可
+      options:
+        - 本人原创，允许本站展示
+        - 已获得作者许可，允许本站展示
+        - 仅希望先讨论，许可尚未确认
+        - 我不确定作品的授权情况
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: 补充说明
+      description: 可写作品介绍、希望展示的署名或其他注意事项；图片可直接拖入此框。
+      placeholder: 如果授权还不确定，请说明你希望我们如何处理。
+    validations:
+      required: false

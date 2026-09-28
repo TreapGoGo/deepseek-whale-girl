@@ -1,0 +1,42 @@
+name: 推荐相关资源
+description: 推荐鲸鱼娘相关项目、工具、创作或参考资料
+title: "[资源推荐] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        推荐前请确认链接可以公开访问。本站会核对项目内容，并标注这是独立社区资源，不代表官方背书。
+  - type: input
+    id: resource-name
+    attributes:
+      label: 资源名称
+    validations:
+      required: true
+  - type: input
+    id: resource-url
+    attributes:
+      label: 项目或作品链接
+      placeholder: https://...
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: 简单介绍
+      description: 说说它是什么、适合谁使用，或为什么值得收录。
+    validations:
+      required: true
+  - type: input
+    id: maintainer
+    attributes:
+      label: 作者或维护者
+      description: 如果页面上能找到，请填写账号或团队名称。
+    validations:
+      required: false
+  - type: textarea
+    id: notes
+    attributes:
+      label: 其他说明
+      description: 可补充授权、维护状态或需要特别提醒的事项。
+    validations:
+      required: false
