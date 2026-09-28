@@ -161,7 +161,7 @@ h1 em, h2 em { color: var(--blue); font-style: normal; }
 .nav-cta svg { width: 16px; height: 16px; fill: currentColor; }
 .nav-cta .github-star-count { display: inline-flex; align-items: center; gap: 4px; margin-left: 2px; padding-left: 8px; border-left: 1px solid var(--line); color: var(--ink-soft); font-size: 12px; font-variant-numeric: tabular-nums; line-height: 1; }
 .nav-cta .github-star-count[hidden] { display: none; }
-.nav-cta .github-star-count img { display: block; width: auto; height: 20px; }
+.nav-cta .github-star-count svg { width: 13px; height: 13px; flex: none; color: var(--warm); fill: currentColor; }
 .hero-intro-row { display: block; margin-bottom: 34px; }
 .hero-intro-row h1 { max-width: none; margin: 0; font-size: clamp(34px, 4.5vw, 58px); letter-spacing: -.06em; }
 .prompt-box { position: relative; flex: 1; min-height: 0; margin-top: 20px; overflow: hidden; }
