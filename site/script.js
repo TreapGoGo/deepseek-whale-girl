@@ -145,7 +145,7 @@ if (gallery) {
   gallery.append(communityWork);
   const galleryCount = document.querySelector('.gallery-heading > span');
   if (galleryCount) {
-    galleryCount.textContent = `${gallery.querySelectorAll(':scope > a').length} 张社区图片 · 授权待核实`;
+    galleryCount.textContent = `${gallery.querySelectorAll(':scope > a').length} 张社区作品`;
   }
 
   const links = [...gallery.querySelectorAll(':scope > a')];

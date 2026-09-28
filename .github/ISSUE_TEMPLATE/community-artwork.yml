@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        欢迎投稿！你不需要提交代码。填完下面的信息后，可以在提交前或提交后把图片拖进补充说明框。
+        欢迎投稿！你不需要提交代码。填完下面的信息后，可以把图片直接拖进补充说明框。
   - type: input
     id: work-name
     attributes:
@@ -28,22 +28,11 @@ body:
       placeholder: https://...
     validations:
       required: true
-  - type: dropdown
-    id: permission
-    attributes:
-      label: 分享与展示许可
-      options:
-        - 本人原创，允许本站展示
-        - 已获得作者许可，允许本站展示
-        - 仅希望先讨论，许可尚未确认
-        - 我不确定作品的授权情况
-    validations:
-      required: true
   - type: textarea
     id: notes
     attributes:
       label: 补充说明
       description: 可写作品介绍、希望展示的署名或其他注意事项；图片可直接拖入此框。
-      placeholder: 如果授权还不确定，请说明你希望我们如何处理。
+      placeholder: 可以补充作品背景或展示时需要注明的信息。
     validations:
       required: false

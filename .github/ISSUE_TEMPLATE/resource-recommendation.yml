@@ -37,6 +37,6 @@ body:
     id: notes
     attributes:
       label: 其他说明
-      description: 可补充授权、维护状态或需要特别提醒的事项。
+      description: 可补充维护状态或需要特别提醒的事项。
     validations:
       required: false

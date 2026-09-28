@@ -8,7 +8,8 @@ body:
       label: 反馈类型
       options:
         - 信息有误或链接失效
-        - 署名、来源或授权需要更正
+        - 作者或来源信息需要更正
+        - 内容涉及侵权，请求删除
         - 希望补充的内容
         - 页面使用建议
         - 其他
@@ -18,7 +19,7 @@ body:
     id: details
     attributes:
       label: 具体情况
-      description: 请尽量告诉我们在哪个页面、哪项内容，以及你建议如何修改。
+      description: 请尽量提供相关页面或图片链接，以及需要更正或处理的具体内容。
     validations:
       required: true
   - type: input
