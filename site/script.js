@@ -141,6 +141,14 @@ if (gallery) {
     { src: './assets/gallery/meme-30.webp', alt: '鲸鱼娘把 DeepSeek 鲸鱼标志认成自己的漫画' },
     { src: './assets/gallery/meme-31.webp', alt: '鲸鱼娘偷偷玩中文 Wordle 的漫画' },
     { src: './assets/gallery/meme-32.webp', alt: '糖鲸表情包；作者未知，来源为长期流传的 QQ 群表情包，投稿 Issue #1' },
+    { src: './assets/gallery/meme-33.webp', alt: 'fufu风格的鲸鱼娘（作者：尘间_PX / SpaceOFDust_PX，投稿 Issue #4）' },
+    { src: './assets/gallery/meme-34.webp', alt: 'fufu风格的鲸鱼娘二创（作者：尘间_PX / SpaceOFDust_PX，投稿 Issue #4）' },
+    { src: './assets/gallery/meme-35.webp', alt: 'fufu风格的鲸鱼娘表情（作者：尘间_PX / SpaceOFDust_PX，投稿 Issue #4）' },
+    { src: './assets/gallery/meme-36.webp', alt: '来吃你家大米了（作者：尘间_PX / SpaceOFDust_PX，投稿 Issue #5）' },
+    { src: './assets/gallery/meme-37.webp', alt: '大肥鱼扫除（作者：心脏等分；来源：Bilibili，投稿 Issue #6）' },
+    { src: './assets/gallery/meme-38.webp', alt: '站立的蓝色大肥鱼（作者：标准大气吖，投稿 Issue #9）' },
+    { src: './assets/gallery/meme-39.webp', alt: '鲸鱼娘全身设定手稿（作者：标准大气吖，投稿 Issue #9）' },
+    { src: './assets/gallery/meme-40.webp', alt: '站立的蓝色大肥鱼（作者：标准大气吖，投稿 Issue #9）' },
   ];
 
   communityWorks.forEach(({ src, alt }, index) => {
