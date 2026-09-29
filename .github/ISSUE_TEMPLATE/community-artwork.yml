@@ -28,6 +28,17 @@ body:
       placeholder: https://...
     validations:
       required: true
+  - type: dropdown
+    id: handmade
+    attributes:
+      label: 作品是否为纯人工创作？
+      description: 手绘、手写、手工制作等未使用生成式 AI 的作品，可进入“能工智人古法手搓专区”。如果使用了 AI 生成或辅助，请选择相应选项。
+      options:
+        - 使用了生成式 AI 或 AI 辅助
+        - 纯人工创作（手绘、手写、手工制作等）
+        - 其他 / 不确定
+    validations:
+      required: true
   - type: textarea
     id: notes
     attributes:

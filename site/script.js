@@ -146,12 +146,12 @@ if (gallery) {
     { src: './assets/gallery/meme-35.webp', alt: 'fufu风格的鲸鱼娘表情（作者：尘间_PX / SpaceOFDust_PX，投稿 Issue #4）' },
     { src: './assets/gallery/meme-36.webp', alt: '来吃你家大米了（作者：尘间_PX / SpaceOFDust_PX，投稿 Issue #5）' },
     { src: './assets/gallery/meme-37.webp', alt: '大肥鱼扫除（作者：心脏等分；来源：Bilibili，投稿 Issue #6）' },
-    { src: './assets/gallery/meme-38.webp', alt: '站立的蓝色大肥鱼（作者：标准大气吖，投稿 Issue #9）' },
-    { src: './assets/gallery/meme-39.webp', alt: '鲸鱼娘全身设定手稿（作者：标准大气吖，投稿 Issue #9）' },
-    { src: './assets/gallery/meme-40.webp', alt: '站立的蓝色大肥鱼（作者：标准大气吖，投稿 Issue #9）' },
+    { src: './assets/gallery/meme-38.webp', alt: '马克笔与彩铅绘制的站立蓝色大肥鱼（作者：标准大气吖，投稿 Issue #9）', author: '标准大气吖', handmade: true },
+    { src: './assets/gallery/meme-39.webp', alt: '鲸鱼娘全身手绘设定草图（作者：标准大气吖，投稿 Issue #9）', author: '标准大气吖', handmade: true },
+    { src: './assets/gallery/meme-40.webp', alt: '马克笔与彩铅绘制的站立蓝色大肥鱼（作者：标准大气吖，投稿 Issue #9）', author: '标准大气吖', handmade: true },
   ];
 
-  communityWorks.forEach(({ src, alt }, index) => {
+  communityWorks.forEach(({ src, alt, author, handmade }, index) => {
     const work = document.createElement('a');
     const image = document.createElement('img');
     work.href = src;
@@ -161,25 +161,68 @@ if (gallery) {
     image.alt = alt;
     image.loading = index === 0 ? 'eager' : 'lazy';
     work.append(image);
+    if (author) work.dataset.author = author;
+    if (handmade) work.dataset.handmade = 'true';
     gallery.append(work);
   });
-  const galleryCount = document.querySelector('.gallery-heading > span');
+  const galleryHeading = document.querySelector('.gallery-heading');
+  const galleryCount = galleryHeading?.querySelector(':scope > span');
+  const handmadeCount = gallery.querySelectorAll(':scope > a[data-handmade="true"]').length;
+  const galleryControls = document.createElement('div');
+  galleryControls.className = 'gallery-heading-actions';
+  const handmadeToggle = document.createElement('button');
+  handmadeToggle.className = 'handmade-mode-toggle';
+  handmadeToggle.type = 'button';
+  handmadeToggle.setAttribute('aria-pressed', 'false');
+  handmadeToggle.setAttribute('aria-controls', 'community-gallery');
+  handmadeToggle.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15.8 4.2 4 4M4 20l4.2-.9L19 8.3a2.83 2.83 0 0 0-4-4L4.2 15.1 4 20Z"/><path d="M13.5 6.5 17.5 10.5"/></svg><span>能工智人古法手搓专区</span>';
+  gallery.id = 'community-gallery';
+  galleryControls.append(handmadeToggle);
   if (galleryCount) {
-    galleryCount.textContent = `${gallery.querySelectorAll(':scope > a').length} 张社区作品`;
+    galleryCount.className = 'gallery-count';
+    galleryControls.prepend(galleryCount);
   }
+  galleryHeading?.append(galleryControls);
 
   const links = [...gallery.querySelectorAll(':scope > a')];
-  for (let index = links.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(Math.random() * (index + 1));
-    [links[index], links[swapIndex]] = [links[swapIndex], links[index]];
+  const shuffle = (entries) => {
+    for (let index = entries.length - 1; index > 0; index -= 1) {
+      const swapIndex = Math.floor(Math.random() * (index + 1));
+      [entries[index], entries[swapIndex]] = [entries[swapIndex], entries[index]];
+    }
+    return entries;
+  };
+  const handmadeLinks = shuffle(links.filter((link) => link.dataset.handmade === 'true'));
+  const regularLinks = shuffle(links.filter((link) => link.dataset.handmade !== 'true'));
+  const orderedLinks = [];
+  let regularSinceHandmade = 0;
+  while (regularLinks.length || handmadeLinks.length) {
+    const floorReached = regularSinceHandmade >= 4;
+    const variedPlacement = regularSinceHandmade > 0 && Math.random() < 0.28;
+    const showHandmade = handmadeLinks.length && (!regularLinks.length || floorReached || variedPlacement);
+    const link = showHandmade ? handmadeLinks.shift() : regularLinks.shift();
+    orderedLinks.push(link);
+    regularSinceHandmade = showHandmade ? 0 : regularSinceHandmade + 1;
   }
-  const items = links.map((link) => {
+
+  if (galleryCount) {
+    galleryCount.textContent = `${links.length} 张社区作品 · 手作 ${handmadeCount} 件`;
+  }
+
+  const items = orderedLinks.map((link) => {
     const image = link.querySelector('img');
     const tile = document.createElement('div');
     const actions = document.createElement('div');
     const button = document.createElement('button');
     const download = document.createElement('a');
-    tile.className = 'gallery-tile';
+    const isHandmade = link.dataset.handmade === 'true';
+    tile.className = `gallery-tile${isHandmade ? ' is-handmade' : ''}`;
+    if (isHandmade) {
+      const author = document.createElement('span');
+      author.className = 'gallery-author-caption';
+      author.textContent = `手作 · ${link.dataset.author || '作者未署名'}`;
+      link.append(author);
+    }
     actions.className = 'gallery-actions';
     button.className = 'gallery-copy-button';
     button.type = 'button';
@@ -202,17 +245,53 @@ if (gallery) {
     return tile;
   });
 
+  let handmadeMode = false;
+  handmadeToggle.addEventListener('click', () => {
+    handmadeMode = !handmadeMode;
+    handmadeToggle.setAttribute('aria-pressed', String(handmadeMode));
+    handmadeToggle.querySelector('span').textContent = handmadeMode ? '返回全部作品' : '能工智人古法手搓专区';
+    gallery.classList.toggle('is-handmade-mode', handmadeMode);
+    if (galleryCount) {
+      galleryCount.textContent = handmadeMode
+        ? `手搓专区 · ${handmadeCount} 件作品`
+        : `${links.length} 张社区作品 · 手作 ${handmadeCount} 件`;
+    }
+    layoutGallery();
+  });
+
   function layoutGallery() {
     if (items.some((item) => !item.querySelector('img')?.naturalWidth)) return;
 
     const width = gallery.clientWidth;
     const gap = width <= 560 ? 10 : 14;
+    const handmadeMode = gallery.classList.contains('is-handmade-mode');
+    const visibleItems = items.filter((item) => !handmadeMode || item.classList.contains('is-handmade'));
+    items.forEach((item) => { item.hidden = handmadeMode && !item.classList.contains('is-handmade'); });
+    const fragment = document.createDocumentFragment();
+
+    if (handmadeMode) {
+      const columns = width <= 700 ? 1 : 2;
+      for (let index = 0; index < visibleItems.length; index += columns) {
+        const rowElement = document.createElement('div');
+        rowElement.className = 'gallery-row handmade-row';
+        visibleItems.slice(index, index + columns).forEach((item) => {
+          item.style.width = '';
+          item.style.height = '';
+          item.classList.toggle('is-solo', columns === 2 && index + columns > visibleItems.length && visibleItems.length % columns === 1);
+          rowElement.appendChild(item);
+        });
+        fragment.appendChild(rowElement);
+      }
+      gallery.replaceChildren(fragment);
+      return;
+    }
+
     const targetHeight = width <= 560 ? Math.min(170, width * .46) : width / 4.15;
     const rows = [];
     let row = [];
     let ratioTotal = 0;
 
-    items.forEach((item) => {
+    visibleItems.forEach((item) => {
       const image = item.querySelector('img');
       const ratio = image.naturalWidth / image.naturalHeight;
       row.push({ item, ratio });
@@ -228,7 +307,6 @@ if (gallery) {
 
     if (row.length) rows.push({ entries: row, justified: false });
 
-    const fragment = document.createDocumentFragment();
     rows.forEach(({ entries, justified }) => {
       const rowElement = document.createElement('div');
       rowElement.className = 'gallery-row';
