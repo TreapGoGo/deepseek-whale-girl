@@ -140,6 +140,7 @@ if (gallery) {
     { src: './assets/gallery/meme-29.webp', alt: '鲸鱼娘先去吃饭的测试梗图' },
     { src: './assets/gallery/meme-30.webp', alt: '鲸鱼娘把 DeepSeek 鲸鱼标志认成自己的漫画' },
     { src: './assets/gallery/meme-31.webp', alt: '鲸鱼娘偷偷玩中文 Wordle 的漫画' },
+    { src: './assets/gallery/meme-32.webp', alt: '糖鲸表情包；作者未知，来源为长期流传的 QQ 群表情包，投稿 Issue #1' },
   ];
 
   communityWorks.forEach(({ src, alt }, index) => {
