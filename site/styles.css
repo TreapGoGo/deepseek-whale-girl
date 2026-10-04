@@ -240,7 +240,7 @@ h1 em, h2 em { color: var(--blue); font-style: normal; }
 .gallery-tile.is-handmade > a { overflow: hidden; border-radius: 9px; }
 .gallery-tile.is-handmade img { transition: transform .3s ease; }
 .gallery-author-caption { position: absolute; right: 0; bottom: 0; left: 0; display: flex; min-height: 62px; align-items: end; padding: 27px 15px 12px; color: #fff; background: linear-gradient(180deg, rgba(24, 36, 58, 0), rgba(24, 36, 58, .74)); font-size: 13px; font-weight: 650; letter-spacing: .02em; opacity: 0; transform: translateY(4px); transition: opacity .2s ease, transform .2s ease; pointer-events: none; }
-.gallery-tile.is-handmade:hover .gallery-author-caption, .gallery-tile.is-handmade:focus-within .gallery-author-caption { opacity: 1; transform: translateY(0); }
+.gallery-tile:hover .gallery-author-caption, .gallery-tile:focus-within .gallery-author-caption { opacity: 1; transform: translateY(0); }
 .gallery-tile.is-handmade .gallery-actions { top: 12px; bottom: auto; }
 .gallery-row.handmade-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: clamp(16px, 2.4vw, 30px); }
 .gallery-row.handmade-row .gallery-tile { width: 100%; height: auto; }
@@ -281,6 +281,40 @@ h1 em, h2 em { color: var(--blue); font-style: normal; }
 }
 
 body.lightbox-open { overflow: hidden; }
+.gallery-intro { max-width: 640px; margin: -12px 0 26px; color: var(--ink-soft); font-size: 14px; }
+.gallery-tile { scroll-margin-top: 150px; }
+.gallery-tile .gallery-actions { top: 8px; bottom: auto; }
+.gallery-author-caption { overflow-wrap: anywhere; font-size: 12px; }
+.gallery-load-error { position: absolute; inset: 0; display: grid; place-items: center; padding: 18px; background: #edf2fa; color: var(--ink-soft); font-size: 13px; text-align: center; }
+.lightbox-source[hidden] { display: none; }
+.lightbox-toolbar { min-width: 0; }
+.lightbox-toolbar > span { min-width: 0; }
+.lightbox-actions { flex-wrap: wrap; }
+.contribution-content .submission-process { margin-top: 16px; color: var(--ink-soft); font-size: 13px; }
+.workflow-content { max-width: 1240px; margin: auto; padding: 0 clamp(22px, 8vw, 124px) 80px; }
+.workflow-section { padding: 34px 0; border-bottom: 1px solid var(--line); }
+.workflow-section h2 { margin-bottom: 16px; font-size: clamp(23px, 3vw, 32px); }
+.workflow-section p, .workflow-section li { color: var(--ink-soft); overflow-wrap: anywhere; }
+.workflow-section a { color: var(--blue-deep); text-decoration: underline; text-underline-offset: 4px; }
+.workflow-downloads { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.workflow-downloads article { padding: 24px; border: 1px solid var(--line); border-radius: 18px; background: #eff5ff; }
+.workflow-downloads article > div { display: flex; flex-wrap: wrap; gap: 12px; }
+.workflow-downloads a { display: inline-flex; min-height: 44px; align-items: center; }
+.workflow-table-wrap { overflow-x: auto; }
+.workflow-section table { width: 100%; text-align: left; border-collapse: collapse; font-size: 14px; }
+.workflow-section th, .workflow-section td { padding: 12px 10px; border-bottom: 1px solid var(--line); }
+.workflow-previews { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.workflow-previews img { width: 100%; height: auto; border-radius: 12px; }
+.workflow-previews span { display: block; padding-top: 10px; font-size: 12px; }
+@media (max-width: 600px) {
+  .workflow-downloads { grid-template-columns: 1fr; }
+  .workflow-previews { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .workflow-section table { font-size: 12px; }
+}
+button:disabled { cursor: wait; opacity: .65; }
+@media (hover: none) {
+  .gallery-actions { opacity: 1; pointer-events: auto; transform: none; }
+}
 .gallery-lightbox { width: 100vw; max-width: none; height: 100dvh; max-height: none; margin: 0; padding: 0; border: 0; color: var(--ink); background: transparent; }
 .gallery-lightbox[open] { animation: lightbox-in .22s cubic-bezier(.25, 1, .5, 1); }
 .gallery-lightbox::backdrop { background: rgba(226, 236, 252, .54); backdrop-filter: blur(18px) saturate(1.15); animation: lightbox-backdrop-in .2s ease-out; }

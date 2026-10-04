@@ -1,0 +1,107 @@
+{
+ "1": {
+  "class_type": "UNETLoader",
+  "inputs": {
+   "unet_name": "qwen_image_2.1_int8_convrot.safetensors",
+   "weight_dtype": "default"
+  }
+ },
+ "2": {
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "qwen3vl_8b_int8_convrot.safetensors",
+   "type": "qwen_image",
+   "device": "default"
+  }
+ },
+ "3": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "qwen_image_2.1_vae_bf16.safetensors"
+  }
+ },
+ "4": {
+  "class_type": "TextEncodeQwenImage21",
+  "inputs": {
+   "clip": [
+    "2",
+    0
+   ],
+   "prompt": "Q 版蓝色鲸鱼娘，大头小身材，约三头身的圆润比例，头部、蓬松的长发和向外展开的裙摆构成柔软饱满的轮廓。头发以深海蓝为主色，从发根的深蓝逐渐过渡到发尾明亮的海蓝与浅青蓝；额前是层叠的斜刘海，几束短发贴着圆脸向内弯，头顶翘起一根弧形呆毛。脸颊圆润，眼睛占脸部很大比例，深蓝外圈包着亮蓝虹膜，瞳孔中有大小不同的白色与浅蓝色高光；鼻子小巧，双颊透出淡粉色，嘴巴小而精致。头上戴着拱起的白色蕾丝女仆发箍，褶边层层叠叠；发箍两侧各系一枚亮蓝色小蝴蝶结。头侧有一对向两边展开的鲸鱼鳍状耳朵，外侧为深海蓝，内缘带白色波浪形褶边。身后伸出一条厚实的深蓝色鲸尾，末端分成两片圆润的尾鳍。身穿深蓝与白色相间的女仆裙：白色高领衬衫，领口系深蓝蝴蝶结，中央一颗金边椭圆蓝宝石；腰前白色围裙印有小蓝鲸与水花图案。深蓝短裙向外撑开，裙摆下叠多层白色花边。白色花边短袜，圆头深蓝色玛丽珍鞋。整体配色围绕深海蓝、钴蓝、浅海蓝与白色，少量金色装饰。单人全身立绘，柔和摄影棚灯光，纯净浅色背景，杰作，最高画质。",
+   "negative_prompt": "lowres, blurry, worst quality, low quality, jpeg artifacts, watermark, signature, text, extra limbs, extra fingers, deformed hands, bad anatomy, cropped",
+   "resolution": 1024
+  }
+ },
+ "5": {
+  "class_type": "EmptyLatentImage",
+  "inputs": {
+   "width": 1024,
+   "height": 1536,
+   "batch_size": 1
+  }
+ },
+ "6": {
+  "class_type": "KSampler",
+  "inputs": {
+   "seed": 20260929,
+   "steps": 28,
+   "cfg": 1.0,
+   "sampler_name": "euler",
+   "scheduler": "simple",
+   "denoise": 1.0,
+   "model": [
+    "1",
+    0
+   ],
+   "positive": [
+    "4",
+    0
+   ],
+   "negative": [
+    "4",
+    1
+   ],
+   "latent_image": [
+    "5",
+    0
+   ]
+  }
+ },
+ "7": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "6",
+    0
+   ],
+   "vae": [
+    "3",
+    0
+   ]
+  }
+ },
+ "8": {
+  "class_type": "ImageScale",
+  "inputs": {
+   "upscale_method": "lanczos",
+   "width": 1400,
+   "height": 2048,
+   "crop_position": "center",
+   "image": [
+    "7",
+    0
+   ],
+   "crop": "center"
+  }
+ },
+ "9": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "filename_prefix": "whale_girl_q版大肥鱼_seed20260929",
+   "images": [
+    "8",
+    0
+   ]
+  }
+ }
+}

@@ -24,6 +24,8 @@
 - 鲸鱼娘相关的社区项目、工具与参考资料
 - 社区二创作品与梗图画廊
 - 面向非程序员的作品投稿、资源推荐和反馈入口
+- [社区 ComfyUI 工作流](https://treapgogo.github.io/deepseek-whale-girl/workflows.html)：6 份文生图任务、依赖说明与投稿测试图
+- 纯人工作品的“能工智人古法手搓专区”，保留作者署名
 
 ## 参与贡献
 
@@ -34,6 +36,8 @@
 - [反馈、纠错或补充](https://github.com/TreapGoGo/deepseek-whale-girl/issues/new?template=feedback.yml)
 
 如果熟悉网页开发，也欢迎通过 Pull Request 改进网站。提交前请尽量说明改动目的，并在浏览器中检查页面显示和链接。
+
+作品请直接上传图片附件，不要只提供聊天分享链接。投稿由维护者整理后随网站发布，不会即时自动出现；收录结果或需要补充的信息会在原 issue 回复。转载请填写原作者，未知时如实标注。
 
 ## 本地预览
 
@@ -58,11 +62,14 @@ python -m http.server 4173 --directory site
     ├── index.html             # 首页与资源画廊
     ├── project.html           # 常见问题（FAQ）
     ├── contribute.html        # 贡献方式
+    ├── workflows.html         # 社区工作流下载与说明
     ├── styles.css             # 页面样式
     └── script.js              # 页面交互
 ```
 
 推送到 `main` 分支后，GitHub Actions 会自动将 `site/` 部署到 GitHub Pages；也可以在仓库的 Actions 页面手动触发部署。
+
+画廊的作品信息集中保存在 [`site/assets/gallery/manifest.json`](site/assets/gallery/manifest.json)，包含作者、来源、创作类型、尺寸和投稿链接。预览图与完整尺寸下载分开加载；没有 JavaScript 时仍可查看静态图片链接。新增素材后运行 `python tools/build_gallery.py` 更新首页静态画廊，并运行 `python tools/validate_site.py` 检查本地链接、图片尺寸与工作流结构。
 
 ## 代码、内容与素材许可
 

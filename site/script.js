@@ -83,8 +83,12 @@ function bindImageCopyButton(button) {
   if (button.dataset.copyReady === 'true') return;
   button.dataset.copyReady = 'true';
   button.addEventListener('click', async () => {
+    if (button.disabled) return;
     const imageUrl = button.dataset.image;
     const originalLabel = button.innerHTML;
+    button.disabled = true;
+    button.setAttribute('aria-busy', 'true');
+    button.textContent = '正在复制…';
     try {
       await copyImage(imageUrl);
       showCopied(button, originalLabel);
@@ -92,6 +96,9 @@ function bindImageCopyButton(button) {
     } catch {
       showCopyError(button, originalLabel);
       setStatus('当前浏览器暂不支持直接复制图片，请使用右侧的下载按钮。');
+    } finally {
+      button.disabled = false;
+      button.removeAttribute('aria-busy');
     }
   });
 }
@@ -106,10 +113,16 @@ const lightboxDownloadLink = document.querySelector('.lightbox-download-link');
 
 function openLightbox(image) {
   if (!lightbox || !image) return;
-  const imageUrl = image.getAttribute('src');
+  const imageUrl = image.closest('a')?.dataset.original || image.getAttribute('src');
   lightboxImage.src = imageUrl;
   lightboxImage.alt = image.alt;
   lightboxCaption.textContent = image.alt;
+  const sourceLink = lightbox.querySelector('.lightbox-source');
+  if (sourceLink) {
+    const sourceUrl = image.closest('a')?.dataset.issueUrl;
+    sourceLink.hidden = !sourceUrl;
+    if (sourceUrl) sourceLink.href = sourceUrl;
+  }
   lightboxCopyButton.dataset.image = imageUrl;
   lightboxDownloadLink.href = imageUrl;
   lightboxDownloadLink.download = imageUrl.split('/').pop();
@@ -132,39 +145,6 @@ if (lightbox) {
 const gallery = document.querySelector('.masonry-gallery');
 
 if (gallery) {
-  const communityWorks = [
-    { src: './assets/gallery/community-2026-09-29.jpg', alt: '鲸鱼娘社区二创作品（2026-09-29）' },
-    { src: './assets/gallery/meme-26.webp', alt: '鲸鱼娘大冒险、偷懒与跳脸梗图' },
-    { src: './assets/gallery/meme-27.webp', alt: '鲸鱼娘误触飞行模式后网络中断的漫画' },
-    { src: './assets/gallery/meme-28.webp', alt: '鲸鱼娘与用户互动的连续漫画' },
-    { src: './assets/gallery/meme-29.webp', alt: '鲸鱼娘先去吃饭的测试梗图' },
-    { src: './assets/gallery/meme-30.webp', alt: '鲸鱼娘把 DeepSeek 鲸鱼标志认成自己的漫画' },
-    { src: './assets/gallery/meme-31.webp', alt: '鲸鱼娘偷偷玩中文 Wordle 的漫画' },
-    { src: './assets/gallery/meme-32.webp', alt: '糖鲸表情包；作者未知，来源为长期流传的 QQ 群表情包，投稿 Issue #1' },
-    { src: './assets/gallery/meme-33.webp', alt: 'fufu风格的鲸鱼娘（作者：尘间_PX / SpaceOFDust_PX，投稿 Issue #4）' },
-    { src: './assets/gallery/meme-34.webp', alt: 'fufu风格的鲸鱼娘二创（作者：尘间_PX / SpaceOFDust_PX，投稿 Issue #4）' },
-    { src: './assets/gallery/meme-35.webp', alt: 'fufu风格的鲸鱼娘表情（作者：尘间_PX / SpaceOFDust_PX，投稿 Issue #4）' },
-    { src: './assets/gallery/meme-36.webp', alt: '来吃你家大米了（作者：尘间_PX / SpaceOFDust_PX，投稿 Issue #5）' },
-    { src: './assets/gallery/meme-37.webp', alt: '大肥鱼扫除（作者：心脏等分；来源：Bilibili，投稿 Issue #6）' },
-    { src: './assets/gallery/meme-38.webp', alt: '马克笔与彩铅绘制的站立蓝色大肥鱼（作者：标准大气吖，投稿 Issue #9）', author: '标准大气吖', handmade: true },
-    { src: './assets/gallery/meme-39.webp', alt: '鲸鱼娘全身手绘设定草图（作者：标准大气吖，投稿 Issue #9）', author: '标准大气吖', handmade: true },
-    { src: './assets/gallery/meme-40.webp', alt: '马克笔与彩铅绘制的站立蓝色大肥鱼（作者：标准大气吖，投稿 Issue #9）', author: '标准大气吖', handmade: true },
-  ];
-
-  communityWorks.forEach(({ src, alt, author, handmade }, index) => {
-    const work = document.createElement('a');
-    const image = document.createElement('img');
-    work.href = src;
-    work.target = '_blank';
-    work.rel = 'noreferrer';
-    image.src = src;
-    image.alt = alt;
-    image.loading = index === 0 ? 'eager' : 'lazy';
-    work.append(image);
-    if (author) work.dataset.author = author;
-    if (handmade) work.dataset.handmade = 'true';
-    gallery.append(work);
-  });
   const galleryHeading = document.querySelector('.gallery-heading');
   const galleryCount = galleryHeading?.querySelector(':scope > span');
   const handmadeCount = gallery.querySelectorAll(':scope > a[data-handmade="true"]').length;
@@ -217,21 +197,23 @@ if (gallery) {
     const download = document.createElement('a');
     const isHandmade = link.dataset.handmade === 'true';
     tile.className = `gallery-tile${isHandmade ? ' is-handmade' : ''}`;
-    if (isHandmade) {
+    tile.id = link.id;
+    link.removeAttribute('id');
+    if (link.dataset.author) {
       const author = document.createElement('span');
       author.className = 'gallery-author-caption';
-      author.textContent = `手作 · ${link.dataset.author || '作者未署名'}`;
+      author.textContent = `${isHandmade ? '手作 · ' : ''}${link.dataset.author}`;
       link.append(author);
     }
     actions.className = 'gallery-actions';
     button.className = 'gallery-copy-button';
     button.type = 'button';
-    button.dataset.image = image.getAttribute('src');
+    button.dataset.image = link.dataset.original || image.getAttribute('src');
     button.setAttribute('aria-label', `复制${image.alt}`);
     button.innerHTML = `${copyIcon}<span>复制图片</span>`;
     download.className = 'gallery-download-link';
-    download.href = image.getAttribute('src');
-    download.download = image.getAttribute('src').split('/').pop();
+    download.href = link.dataset.original || image.getAttribute('src');
+    download.download = download.getAttribute('href').split('/').pop();
     download.setAttribute('aria-label', `下载${image.alt}`);
     download.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14"/></svg><span>下载</span>';
     link.addEventListener('click', (event) => {
@@ -260,9 +242,8 @@ if (gallery) {
   });
 
   function layoutGallery() {
-    if (items.some((item) => !item.querySelector('img')?.naturalWidth)) return;
-
     const width = gallery.clientWidth;
+    if (!width) return;
     const gap = width <= 560 ? 10 : 14;
     const handmadeMode = gallery.classList.contains('is-handmade-mode');
     const visibleItems = items.filter((item) => !handmadeMode || item.classList.contains('is-handmade'));
@@ -293,7 +274,8 @@ if (gallery) {
 
     visibleItems.forEach((item) => {
       const image = item.querySelector('img');
-      const ratio = image.naturalWidth / image.naturalHeight;
+      const ratio = (Number(image.getAttribute('width')) || image.naturalWidth || 1)
+        / (Number(image.getAttribute('height')) || image.naturalHeight || 1);
       row.push({ item, ratio });
       ratioTotal += ratio;
 
@@ -330,8 +312,16 @@ if (gallery) {
 
   items.forEach((item) => {
     const image = item.querySelector('img');
-    if (image) image.loading = 'eager';
-    if (!image?.naturalWidth) image?.addEventListener('load', layoutGallery, { once: true });
+    if (!image) return;
+    image.decoding = 'async';
+    image.addEventListener('error', () => {
+      item.classList.add('image-unavailable');
+      const message = document.createElement('span');
+      message.className = 'gallery-load-error';
+      message.textContent = '预览暂不可用，点击查看原图';
+      item.querySelector('a').append(message);
+      item.querySelector('.gallery-copy-button').disabled = true;
+    }, { once: true });
   });
 
   let galleryWidth = 0;
@@ -343,4 +333,9 @@ if (gallery) {
   galleryObserver.observe(gallery);
   window.addEventListener('load', layoutGallery, { once: true });
   layoutGallery();
+  // Direct links from submission replies should find the card after row layout.
+  if (location.hash && location.hash !== '#gallery') {
+    const target = document.getElementById(location.hash.slice(1));
+    if (target?.classList.contains('gallery-tile')) target.scrollIntoView({ block: 'center' });
+  }
 }

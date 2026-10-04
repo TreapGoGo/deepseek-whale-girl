@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="社区投稿的 ComfyUI 鲸鱼娘文生图工作流：下载、模型依赖、使用方式和测试图。" />
+    <title>ComfyUI 工作流 · 鲸鱼娘开源资产库</title>
+    <link rel="icon" href="./assets/whale-girl-logo-dynamic.png" />
+    <link rel="stylesheet" href="./styles.css?v=community-2" />
+    <script src="./github-stars.js?v=4" defer></script>
+  </head>
+  <body class="subpage">
+    <div class="site-shell">
+      <header class="topbar">
+        <a class="brand" href="./index.html#top" aria-label="回到首页"><span class="brand-mark" aria-hidden="true"><img src="./assets/whale-girl-logo-dynamic.png" alt="" /></span><span><strong>鲸鱼娘开源资产库</strong></span></a>
+        <nav class="nav" aria-label="主导航"><div class="nav-home"><a href="./index.html#top">首页</a><div class="nav-home-menu" role="menu"><a href="./index.html#prompts" role="menuitem">提示词与参考图</a><a href="./index.html#purpose" role="menuitem">项目宗旨</a><a href="./index.html#links" role="menuitem">友情链接</a><a href="./index.html#gallery" role="menuitem">二创大全</a></div></div><a href="./project.html">FAQ</a><a href="./contribute.html">贡献方式</a></nav>
+        <a class="nav-cta" href="https://github.com/TreapGoGo/deepseek-whale-girl" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5a9.5 9.5 0 0 0-3 18.51c.48.09.66-.21.66-.46v-1.68c-2.69.59-3.26-1.14-3.26-1.14-.44-1.12-1.08-1.42-1.08-1.42-.88-.6.07-.59.07-.59.97.07 1.49.99 1.49.99.86 1.48 2.25 1.05 2.8.8.09-.62.34-1.05.61-1.29-2.15-.24-4.42-1.08-4.42-4.8 0-1.06.38-1.92 1-2.59-.1-.24-.43-1.23.1-2.56 0 0 .81-.26 2.62.99a9.2 9.2 0 0 1 4.77 0c1.81-1.25 2.62-.99 2.62-.99.53 1.33.2 2.32.1 2.56.62.67 1 1.53 1 2.59 0 3.73-2.27 4.56-4.43 4.8.35.3.66.87.66 1.75v2.59c0 .25.17.55.67.46A9.5 9.5 0 0 0 12 2.5Z" /></svg><span>GitHub</span><span class="github-star-count" data-github-star-count hidden aria-label="GitHub Star 数"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.8 2.78 5.64 6.22.9-4.5 4.39 1.06 6.2L12 17l-5.56 2.93 1.06-6.2L3 9.34l6.22-.9L12 2.8Z" /></svg><span data-star-count-value></span></span></a>
+      </header>
+      <main class="page-main">
+        <section class="page-heading"><p class="section-label">社区创作工具 · hyq13886640</p><h1>ComfyUI 鲸鱼娘工作流</h1><p>6 份文生图任务，分别对应 Q 版和成熟比例。下载后在已配置好模型与节点的本地 ComfyUI 中使用。</p><a class="contribute-primary" href="./assets/workflows/comfyui-issue-2.zip" download>下载完整工作流包 ↓</a></section>
+        <section class="workflow-content">
+          <div class="workflow-section"><h2>先了解它是什么</h2><p>这是 <a href="https://github.com/TreapGoGo/deepseek-whale-girl/issues/2" target="_blank" rel="noreferrer">hyq13886640 在 #2 分享的社区工作流</a>，不是标准角色设定，也不是浏览器在线生图服务。提交者报告在 RTX 3050 8GB 上出图成功；不同模型版本、节点和设备的运行情况可能不同。</p><p>本包已经检查 JSON 格式、节点连接、种子与文件完整性。本站没有在 GPU 环境重新执行生图，因此不标注为“一键运行已验证”。</p></div>
+          <div class="workflow-section"><h2>选择一份下载</h2><div class="workflow-downloads">
+            <article><h3>Q 版大肥鱼</h3><p>三份任务使用不同随机种子，可按喜好改写提示词。</p><div><a href="./assets/workflows/comfyui-issue-2/chibi-seed42.json" download>Seed 42 ↓</a><a href="./assets/workflows/comfyui-issue-2/chibi-seed777.json" download>Seed 777 ↓</a><a href="./assets/workflows/comfyui-issue-2/chibi-seed20260929.json" download>Seed 20260929 ↓</a></div></article>
+            <article><h3>成熟比例鲸鱼娘</h3><p>三份任务使用不同随机种子，可按喜好改写提示词。</p><div><a href="./assets/workflows/comfyui-issue-2/mature-seed42.json" download>Seed 42 ↓</a><a href="./assets/workflows/comfyui-issue-2/mature-seed777.json" download>Seed 777 ↓</a><a href="./assets/workflows/comfyui-issue-2/mature-seed20260929.json" download>Seed 20260929 ↓</a></div></article>
+          </div></div>
+          <div class="workflow-section"><h2>需要准备什么</h2><p>已有可运行的 ComfyUI、匹配的模型及 <code>TextEncodeQwenImage21</code> 节点。下载包不包含模型权重。</p><div class="workflow-table-wrap"><table><thead><tr><th>模型目录</th><th>工作流引用的文件</th></tr></thead><tbody><tr><td>diffusion_models</td><td>qwen_image_2.1_int8_convrot.safetensors</td></tr><tr><td>text_encoders</td><td>qwen3vl_8b_int8_convrot.safetensors</td></tr><tr><td>vae</td><td>qwen_image_2.1_vae_bf16.safetensors</td></tr></tbody></table></div><p>JSON 是 ComfyUI API 任务格式，不是带节点坐标的可视化工程。不要假定任意版本都支持拖入编辑器；下载包提供明确的本地 API 提交方法。</p></div>
+          <div class="workflow-section"><h2>怎么使用与修改</h2><ol><li>启动自己已经配置好的本地 ComfyUI，确认模型和节点能被找到。</li><li>解压下载包，在文件夹中运行 <code>python submit.py chibi-seed42.json</code>。默认连接本机 <code>http://127.0.0.1:8188</code>，不上传到本站。</li><li>提交成功会返回任务编号。任务完成后，在 ComfyUI 输出目录查看图片。</li></ol><p>想改提示词：编辑 JSON 节点 <code>4</code> 的 <code>inputs.prompt</code>；种子在节点 <code>6</code>，采样尺寸在节点 <code>5</code>。更详细的说明见 <a href="./assets/workflows/comfyui-issue-2/README.md" download>使用说明 ↓</a>。</p></div>
+          <div class="workflow-section"><h2>投稿者提供的测试图</h2><div class="workflow-previews">
+            <a href="./index.html#issue-02-01"><img src="./assets/gallery/submissions/issue-02-01-preview.webp" alt="投稿者的鲸鱼娘工作流测试图 1" width="1400" height="2048" loading="lazy" /><span>查看完整尺寸与来源 ↗</span></a>
+            <a href="./index.html#issue-02-02"><img src="./assets/gallery/submissions/issue-02-02-preview.webp" alt="投稿者的鲸鱼娘工作流测试图 2" width="1400" height="2048" loading="lazy" /><span>查看完整尺寸与来源 ↗</span></a>
+            <a href="./index.html#issue-02-03"><img src="./assets/gallery/submissions/issue-02-03-preview.webp" alt="投稿者的鲸鱼娘工作流测试图 3" width="1400" height="2048" loading="lazy" /><span>查看完整尺寸与来源 ↗</span></a>
+            <a href="./index.html#issue-02-04"><img src="./assets/gallery/submissions/issue-02-04-preview.webp" alt="投稿者的鲸鱼娘工作流测试图 4" width="1400" height="2048" loading="lazy" /><span>查看完整尺寸与来源 ↗</span></a>
+            <a href="./index.html#issue-02-05"><img src="./assets/gallery/submissions/issue-02-05-preview.webp" alt="投稿者的鲸鱼娘工作流测试图 5" width="1400" height="2048" loading="lazy" /><span>查看完整尺寸与来源 ↗</span></a>
+          </div></div>
+        </section>
+      </main>
+      <footer class="footer"><span>鲸鱼娘开源资产库</span><a href="https://github.com/TreapGoGo/deepseek-whale-girl/issues/new?template=feedback.yml" target="_blank" rel="noreferrer">如涉及侵权，请联系删除</a><a href="https://github.com/TreapGoGo/deepseek-whale-girl" target="_blank" rel="noreferrer">GitHub</a></footer>
+    </div>
+  </body>
+</html>

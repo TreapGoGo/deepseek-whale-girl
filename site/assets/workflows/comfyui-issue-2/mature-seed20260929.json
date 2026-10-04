@@ -1,0 +1,107 @@
+{
+ "1": {
+  "class_type": "UNETLoader",
+  "inputs": {
+   "unet_name": "qwen_image_2.1_int8_convrot.safetensors",
+   "weight_dtype": "default"
+  }
+ },
+ "2": {
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "qwen3vl_8b_int8_convrot.safetensors",
+   "type": "qwen_image",
+   "device": "default"
+  }
+ },
+ "3": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "qwen_image_2.1_vae_bf16.safetensors"
+  }
+ },
+ "4": {
+  "class_type": "TextEncodeQwenImage21",
+  "inputs": {
+   "clip": [
+    "2",
+    0
+   ],
+   "prompt": "成熟比例的蓝色鲸鱼娘，身形修长，腰线清晰，头身比例接近成年女性角色。头发浓密延伸到腰下，发根深海蓝，发束穿插钴蓝色光泽，发尾转为明亮海蓝与浅青蓝；长发从两肩向外铺开，末端层层波浪卷。额前侧分斜刘海，头顶一根细长呆毛向上弯起。面部轮廓纤细柔和，明亮的杏仁形眼睛，深蓝外圈包裹渐变亮蓝虹膜，浅色高光；开朗亲切的笑容，脸颊淡淡红晕。头顶白色层叠蕾丝女仆发箍，两侧亮蓝色小蝴蝶结；头侧一对横向舒展的深蓝色鲸鱼鳍状耳朵，内侧衬白色波浪褶边。身穿深蓝与白色的精致女仆服：白色立领系深蓝领结，领结中央镶椭圆蓝宝石和细金边；两肩白色荷叶边肩饰，深蓝袖子微蓬，袖口白色花边；腰间深蓝腰封，两行金色纽扣；深蓝长裙自然展开至小腿，白色荷叶边与蕾丝点缀，金色十字星装饰。正面白色围裙印蓝色小鲸鱼图案，背后宽大白蝴蝶结。腰后伸出深海蓝鲸尾，末端展开两片宽大尾鳍，鳍缘渐变浅蓝。白色过膝长袜，深蓝玛丽珍鞋。单人全身立绘，柔和摄影棚灯光，纯净浅色背景，杰作，最高画质。",
+   "negative_prompt": "lowres, blurry, worst quality, low quality, jpeg artifacts, watermark, signature, text, extra limbs, extra fingers, deformed hands, bad anatomy, cropped",
+   "resolution": 1024
+  }
+ },
+ "5": {
+  "class_type": "EmptyLatentImage",
+  "inputs": {
+   "width": 1024,
+   "height": 1536,
+   "batch_size": 1
+  }
+ },
+ "6": {
+  "class_type": "KSampler",
+  "inputs": {
+   "seed": 20260929,
+   "steps": 28,
+   "cfg": 1.0,
+   "sampler_name": "euler",
+   "scheduler": "simple",
+   "denoise": 1.0,
+   "model": [
+    "1",
+    0
+   ],
+   "positive": [
+    "4",
+    0
+   ],
+   "negative": [
+    "4",
+    1
+   ],
+   "latent_image": [
+    "5",
+    0
+   ]
+  }
+ },
+ "7": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "6",
+    0
+   ],
+   "vae": [
+    "3",
+    0
+   ]
+  }
+ },
+ "8": {
+  "class_type": "ImageScale",
+  "inputs": {
+   "upscale_method": "lanczos",
+   "width": 1400,
+   "height": 2048,
+   "crop_position": "center",
+   "image": [
+    "7",
+    0
+   ],
+   "crop": "center"
+  }
+ },
+ "9": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "filename_prefix": "whale_girl_成熟比例鲸鱼娘_seed20260929",
+   "images": [
+    "8",
+    0
+   ]
+  }
+ }
+}

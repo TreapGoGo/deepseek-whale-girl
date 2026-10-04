@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        欢迎投稿！你不需要提交代码。填完下面的信息后，可以把图片直接拖进补充说明框。
+        欢迎投稿！你不需要提交代码。请把作品图片直接拖进下方补充说明框，不要只留下聊天分享链接。提交后由维护者整理收录，处理结果会在这条 issue 中回复，网站不会在提交瞬间自动更新。
   - type: input
     id: work-name
     attributes:
@@ -43,7 +43,7 @@ body:
     id: notes
     attributes:
       label: 补充说明
-      description: 可写作品介绍、希望展示的署名或其他注意事项；图片可直接拖入此框。
-      placeholder: 可以补充作品背景或展示时需要注明的信息。
+      description: 请直接拖入作品图片；可以同时补充作品介绍、希望展示的署名或其他注意事项。
+      placeholder: 把图片拖到这里，等待上传完成后再提交。多张作品可一起上传。
     validations:
-      required: false
+      required: true
