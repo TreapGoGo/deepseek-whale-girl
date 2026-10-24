@@ -34,18 +34,19 @@ def main():
     sys.stdout.reconfigure(encoding='utf-8')
     parser=argparse.ArgumentParser(description='下载指定 issue 的图片到本地候选区，不自动发布')
     parser.add_argument('--issues',required=True,help='逗号分隔的投稿编号，例如 52,53')
+    parser.add_argument('--review-dir',default='.community-review',help='候选清单与检查图目录（建议按批次隔离）')
     args=parser.parse_args()
     selected={int(value) for value in args.issues.split(',')}
     issues = gh('issue', 'list', '--repo', REPO, '--state', 'all', '--limit', '200', '--json', 'number,title,body,comments,state,author,url')
-    cache = ROOT / '.community-review'
-    cache.mkdir(exist_ok=True)
+    cache = ROOT / args.review_dir
+    cache.mkdir(parents=True,exist_ok=True)
     (cache / 'issues.json').write_text(json.dumps(issues, ensure_ascii=False, indent=2), encoding='utf-8')
     jobs = []
     for issue in sorted(issues, key=lambda x: x['number']):
         if issue['number'] not in selected:
             continue
         texts = [issue['body']] + [comment['body'] for comment in issue['comments']]
-        urls = list(dict.fromkeys(url for text in texts for url in re.findall(r'<img\b[^>]*src="([^"]+)"', text)))
+        urls = list(dict.fromkeys(url for text in texts for match in re.findall(r'<img\b[^>]*src=[\"\x27]([^\"\x27]+)[\"\x27]|!\[[^\]]*\]\((https?://[^\s)]+)\)', text) for url in match if url))
         for index, url in enumerate(urls, 1):
             jobs.append((issue, index, url))
     # The external collection stays upstream; locally host representative previews.
@@ -87,7 +88,8 @@ def main():
                 'src': './assets/gallery/submissions/' + name + '-preview.webp',
                 'original': './assets/gallery/submissions/' + name + '.webp',
                 'width': image.width, 'height': image.height,
-                'pixelHash': hashlib.sha256(image.tobytes()).hexdigest()}
+                'pixelHash': hashlib.sha256(image.tobytes()).hexdigest(),
+                'attachmentSha256': hashlib.sha256(data).hexdigest()}
 
     entries, errors = [], []
     with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:

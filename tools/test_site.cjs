@@ -37,6 +37,12 @@ async function main() {
       await page.goto('http://127.0.0.1:4180/',{waitUntil:'domcontentloaded'});
       await page.waitForFunction(count=>document.querySelectorAll('.gallery-tile').length===count,expected);
       assert.equal(await page.locator('.gallery-row .gallery-tile').count(),expected);
+      // Reviewed October submissions: work images only, corrected image keeps its old permalink.
+      for(const number of [58,59,63,65,70,74]) assert.equal(await page.locator('#resource-'+number).count(),1);
+      for(const id of ['issue-31-01','issue-62-01','issue-73-01']) assert.equal(await page.locator('#'+id).count(),1);
+      for(const id of ['issue-69-02','issue-69-03','issue-69-04','issue-73-02']) assert.equal(await page.locator('#'+id).count(),0);
+      assert.ok((await page.locator('#issue-41-01 img').getAttribute('src')).includes('issue-61-01'));
+      assert.equal(await page.locator('#issue-41-01 a').first().getAttribute('data-issue-url'),'https://github.com/TreapGoGo/deepseek-whale-girl/issues/61');
       const heights = await page.locator('.hero-card').evaluateAll(cards=>cards.map(card=>[card.querySelector('.hero-card-copy').getBoundingClientRect().height,card.querySelector('.hero-card-image').getBoundingClientRect().height]));
       if (width > 600) for (const [left,right] of heights) assert.ok(Math.abs(left-right)<2,`asset alignment at ${width}: ${left}/${right}`);
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`overflow at ${width}`);
@@ -59,6 +65,12 @@ async function main() {
       assert.equal(await page.locator('#gallery-lightbox').evaluate(e=>e.open),false);
       await toggle.click();
       assert.equal(await page.locator('.masonry-gallery .gallery-tile').count(),expected);
+      await page.locator('#issue-66-01 a').first().click({position:{x:6,y:6}});
+      assert.equal(await page.locator('.lightbox-license').isVisible(),true);
+      await page.locator('.lightbox-frame').click({position:{x:2,y:2}});
+      await page.locator('#issue-73-01 a').first().click({position:{x:6,y:6}});
+      assert.equal(await page.locator('.lightbox-license').isVisible(),false);
+      await page.locator('.lightbox-frame').click({position:{x:2,y:2}});
       await page.locator('#gallery').scrollIntoViewIfNeeded();
       await page.mouse.move(0, 0);
       await page.waitForFunction(()=>[...document.querySelectorAll('.gallery-tile img')].filter(img=>{const r=img.getBoundingClientRect();return r.bottom>0&&r.top<innerHeight;}).every(img=>img.complete));
@@ -86,6 +98,23 @@ async function main() {
       await context.close();
       console.log('PASS',width);
     }
+    // A real touch-capable context: buttons stay usable without hover and license actions fit.
+    const touch=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,permissions:['clipboard-read','clipboard-write'],acceptDownloads:true});
+    const mobile=await touch.newPage();
+    await mobile.goto('http://127.0.0.1:4180/index.html#issue-66-01',{waitUntil:'domcontentloaded'});
+    await mobile.locator('#issue-66-01 a').first().tap({position:{x:6,y:6}});
+    await mobile.waitForFunction(()=>document.querySelector('#lightbox-image').complete&&document.querySelector('#lightbox-image').naturalWidth>0);
+    assert.equal(await mobile.locator('.lightbox-license').isVisible(),true);
+    assert.ok(await mobile.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'touch lightbox overflow');
+    await mobile.locator('.lightbox-copy-button').tap();
+    await mobile.waitForFunction(()=>document.querySelector('.lightbox-copy-button').textContent.includes('已复制'));
+    await mobile.touchscreen.tap(2,2);
+    assert.equal(await mobile.locator('#gallery-lightbox').evaluate(e=>e.open),false);
+    await mobile.locator('.handmade-mode-toggle').tap();
+    assert.equal(await mobile.locator('.masonry-gallery .gallery-tile').count(),handmade);
+    assert.equal(await mobile.locator('#issue-53-01 .gallery-copy-button').isVisible(),true);
+    await touch.close();
+    results.push({touch:true,license:true,copy:true,handmade});
     // Public page verification after deployment, when LIVE_SITE is supplied.
     if(process.env.LIVE_SITE) {
       const page=await browser.newPage({viewport:{width:1440,height:900}});

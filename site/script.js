@@ -117,6 +117,8 @@ function openLightbox(image) {
   lightboxImage.src = imageUrl;
   lightboxImage.alt = image.alt;
   lightboxCaption.textContent = image.alt;
+  const licenseLink = lightbox.querySelector('.lightbox-license');
+  if (licenseLink) licenseLink.hidden = image.closest('a')?.dataset.license !== 'CC BY-NC-SA 4.0';
   const sourceLink = lightbox.querySelector('.lightbox-source');
   if (sourceLink) {
     const sourceUrl = image.closest('a')?.dataset.issueUrl;

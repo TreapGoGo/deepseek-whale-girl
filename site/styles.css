@@ -259,7 +259,8 @@ h1 em, h2 em { color: var(--blue); font-style: normal; }
 .gallery-actions button { color: var(--white); background: var(--blue-deep); }
 .gallery-actions a { color: var(--blue-deep); background: transparent; }
 .gallery-actions svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.gallery-tile:hover .gallery-actions, .gallery-tile:focus-within .gallery-actions { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.gallery-tile:hover .gallery-actions, .gallery-tile:focus-within .gallery-actions { opacity: 1; transform: translateY(0); }
+.gallery-tile:hover .gallery-actions > *, .gallery-tile:focus-within .gallery-actions > * { pointer-events: auto; }
 .gallery-actions button:hover, .gallery-actions button:focus-visible, .gallery-actions button.copied { background: var(--blue); }
 .gallery-actions button.copy-error { background: #9f3341; }
 .gallery-actions a:hover, .gallery-actions a:focus-visible { color: var(--blue); background: #edf4ff; }
@@ -272,7 +273,7 @@ h1 em, h2 em { color: var(--blue); font-style: normal; }
 
 @media (hover: none) {
   .masonry-gallery.is-handmade-mode .gallery-author-caption { opacity: 1; transform: none; }
-  .masonry-gallery.is-handmade-mode .gallery-tile.is-handmade .gallery-actions { opacity: 1; pointer-events: auto; transform: none; }
+  .masonry-gallery.is-handmade-mode .gallery-tile.is-handmade .gallery-actions { opacity: 1; transform: none; }
 }
 
 @container (max-width: 170px) {
@@ -287,6 +288,7 @@ body.lightbox-open { overflow: hidden; }
 .gallery-author-caption { overflow-wrap: anywhere; font-size: 12px; }
 .gallery-load-error { position: absolute; inset: 0; display: grid; place-items: center; padding: 18px; background: #edf2fa; color: var(--ink-soft); font-size: 13px; text-align: center; }
 .lightbox-source[hidden] { display: none; }
+.lightbox-license[hidden] { display: none; }
 .lightbox-toolbar { min-width: 0; }
 .lightbox-toolbar > span { min-width: 0; }
 .lightbox-actions { flex-wrap: wrap; }
@@ -313,7 +315,8 @@ body.lightbox-open { overflow: hidden; }
 }
 button:disabled { cursor: wait; opacity: .65; }
 @media (hover: none) {
-  .gallery-actions { opacity: 1; pointer-events: auto; transform: none; }
+  .gallery-actions { opacity: 1; transform: none; }
+  .gallery-actions > * { pointer-events: auto; }
 }
 .gallery-lightbox { width: 100vw; max-width: none; height: 100dvh; max-height: none; margin: 0; padding: 0; border: 0; color: var(--ink); background: transparent; }
 .gallery-lightbox[open] { animation: lightbox-in .22s cubic-bezier(.25, 1, .5, 1); }
