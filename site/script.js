@@ -1,6 +1,6 @@
 const status = document.querySelector('#copy-status');
 
-// 原生锚点负责跳转与历史记录，脚本只维护阅读位置。
+// Native anchors handle navigation and history; the script tracks the current chapter.
 const chapterNav = document.querySelector('.chapter-nav');
 if (chapterNav) {
   const chapterToggle = chapterNav.querySelector('.chapter-nav-toggle');
@@ -23,7 +23,7 @@ if (chapterNav) {
 
   function setChapterExpanded(expanded) {
     const wasHidden = chapterLinks.hidden;
-    // 快速反向切换时从当前画面继续，避免旧回调覆盖最新状态。
+    // Resume from the current frame on rapid reversals so stale callbacks cannot overwrite the latest state.
     const style = panelAnimation ? getComputedStyle(chapterLinks) : null;
     const from = style ? { opacity: style.opacity, transform: style.transform } : null;
     cancelPanelAnimation();
@@ -105,7 +105,7 @@ if (chapterNav) {
   window.addEventListener('resize', scheduleChapterUpdate);
   window.addEventListener('hashchange', scheduleChapterUpdate);
   window.addEventListener('pageshow', scheduleChapterUpdate);
-  // 图片加载和画廊重排也可能移动章节边界。
+  // Image loading and gallery reflow can also move chapter boundaries.
   if ('ResizeObserver' in window) new ResizeObserver(scheduleChapterUpdate).observe(document.querySelector('main'));
   scheduleChapterUpdate();
 }

@@ -39,7 +39,7 @@ img { display: block; max-width: 100%; }
   .chapter-nav a[aria-current="location"] { color: var(--blue-deep); background: var(--blue-pale); font-weight: 750; }
   .chapter-nav a:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
   .chapter-nav.is-collapsed::after { opacity: 0; }
-  /* 收起后的感应区覆盖左侧留白的整个高度，不延伸到正文。 */
+  /* The collapsed trigger spans the full height of the left gutter without covering the content. */
   .chapter-nav.is-collapsed::before { content: ""; position: fixed; inset: 0 auto 0 0; width: calc(var(--chapter-left) + var(--chapter-width) + 8px); z-index: -1; }
   .chapter-nav.is-collapsed .chapter-nav-toggle { border-radius: 8px; background: rgba(246, 248, 252, .92); backdrop-filter: blur(16px); opacity: 0; transform: translateX(-4px); pointer-events: none; }
   .chapter-nav.is-collapsed:hover .chapter-nav-toggle, .chapter-nav.is-collapsed .chapter-nav-toggle:focus-visible { opacity: 1; transform: translateX(0); pointer-events: auto; }

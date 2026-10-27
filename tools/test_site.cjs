@@ -46,7 +46,7 @@ async function main() {
       const heights = await page.locator('.hero-card').evaluateAll(cards=>cards.map(card=>[card.querySelector('.hero-card-copy').getBoundingClientRect().height,card.querySelector('.hero-card-image').getBoundingClientRect().height]));
       if (width > 600) for (const [left,right] of heights) assert.ok(Math.abs(left-right)<2,`asset alignment at ${width}: ${left}/${right}`);
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`overflow at ${width}`);
-      // 章节目录复用首页入口；窄屏继续使用顶部菜单。
+      // Reuse the homepage chapter links; narrow screens keep the top menu.
       const chapters = page.locator('.chapter-nav');
       assert.equal(await chapters.count(),1);
       assert.deepEqual(await chapters.locator('a').evaluateAll(links=>links.map(a=>[a.hash,a.textContent.trim()])),
@@ -83,7 +83,7 @@ async function main() {
         await page.screenshot({path:path.join(review,'chapters-1440-collapsed.png')});
         await page.mouse.move(800,250);
         await page.waitForFunction(()=>getComputedStyle(document.querySelector('.chapter-nav-toggle')).opacity==='0');
-        // 左侧感应区覆盖整个高度，不限于展开按钮附近。
+        // The left trigger spans the full height, not just the area around the expand button.
         for (const y of [150,850]) {
           await page.mouse.move(4,y);
           await page.waitForFunction(()=>getComputedStyle(document.querySelector('.chapter-nav-toggle')).opacity==='1');
@@ -119,7 +119,7 @@ async function main() {
           await page.waitForFunction(()=>[...document.querySelectorAll('main img')].filter(img=>{const r=img.getBoundingClientRect();return r.bottom>0&&r.top<innerHeight;}).every(img=>img.complete));
           await page.screenshot({path:path.join(review,`chapters-1440-${id}.png`)});
         }
-        // 手动滚动不依赖 hash；整个长画廊内始终保留画廊状态。
+        // Manual scrolling works independently of the hash; the full gallery keeps its chapter active.
         for (const id of ['purpose','links','gallery']) {
           await page.evaluate(id=>window.scrollTo({top:document.getElementById(id).getBoundingClientRect().top+scrollY+140,behavior:'instant'}),id);
           await page.waitForFunction(id=>document.querySelector('.chapter-nav [aria-current="location"]')?.hash==='#'+id,id);
@@ -187,7 +187,7 @@ async function main() {
       await context.close();
       console.log('PASS',width);
     }
-    // 无脚本时四个原生链接仍可跳转，不依赖滚动增强逻辑。
+    // All four native anchors remain usable without JavaScript or scroll tracking.
     const plain=await browser.newContext({viewport:{width:1440,height:900},javaScriptEnabled:false,reducedMotion:'reduce'});
     const plainPage=await plain.newPage();
     await plainPage.goto('http://127.0.0.1:4180/',{waitUntil:'domcontentloaded'});
@@ -198,7 +198,7 @@ async function main() {
     }
     await plain.close();
     results.push({chapterNavigation:true,noScriptAnchors:true});
-    // 动画只增强表现；关闭动画 API 或请求减少动态时仍能立即切换。
+    // Animation is progressive enhancement; missing APIs and reduced motion retain immediate switching.
     for (const disableAnimations of [false,true]) {
       const motion=await browser.newContext({viewport:{width:1440,height:900},reducedMotion:'no-preference'});
       await motion.addInitScript(disabled=>{
