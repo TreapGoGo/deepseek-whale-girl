@@ -10,6 +10,7 @@ if (chapterNav) {
     const expanded = chapterToggle.getAttribute('aria-expanded') === 'true';
     chapterToggle.setAttribute('aria-expanded', String(!expanded));
     chapterLinks.hidden = expanded;
+    chapterNav.classList.toggle('is-collapsed', expanded);
     chapterToggle.querySelector('span').textContent = expanded ? '展开' : '收起';
     chapterToggle.setAttribute('aria-label', expanded ? '展开章节导航' : '收起章节导航');
   });
