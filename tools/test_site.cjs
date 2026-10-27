@@ -198,6 +198,63 @@ async function main() {
     }
     await plain.close();
     results.push({chapterNavigation:true,noScriptAnchors:true});
+    // 动画只增强表现；关闭动画 API 或请求减少动态时仍能立即切换。
+    for (const disableAnimations of [false,true]) {
+      const motion=await browser.newContext({viewport:{width:1440,height:900},reducedMotion:'no-preference'});
+      await motion.addInitScript(disabled=>{
+        window.chapterAnimationFrames=[];
+        const animate=Element.prototype.animate;
+        if(disabled) Element.prototype.animate=undefined;
+        else Element.prototype.animate=function(frames,options) {
+          if(this.closest('.chapter-nav')) window.chapterAnimationFrames.push({tag:this.tagName,frames});
+          return animate.call(this,frames,options);
+        };
+      },disableAnimations);
+      const motionPage=await motion.newPage();
+      await motionPage.goto('http://127.0.0.1:4180/',{waitUntil:'domcontentloaded'});
+      const closing=await motionPage.evaluate(()=>{
+        document.querySelector('.chapter-nav-toggle').click();
+        const links=document.querySelector('.chapter-nav-links');
+        const animation=links.getAnimations()[0];
+        if(animation) { animation.pause(); animation.currentTime=80; }
+        return {hidden:links.hidden,animated:links.getAnimations().length>0};
+      });
+      assert.equal(closing.animated,!disableAnimations,'手动收起应播放动画，缺少 API 时直接切换');
+      if(!disableAnimations) {
+        await motionPage.screenshot({path:path.join(review,'chapters-closing-midpoint.png')});
+        await motionPage.evaluate(()=>document.querySelector('.chapter-nav-links').getAnimations()[0].play());
+      }
+      await motionPage.waitForFunction(()=>document.querySelector('.chapter-nav-links').hidden);
+      await motionPage.evaluate(()=>{
+        const button=document.querySelector('.chapter-nav-toggle');
+        button.click();button.click();button.click();
+      });
+      await motionPage.waitForFunction(()=>!document.querySelector('.chapter-nav-links').hidden&&document.querySelector('.chapter-nav-links').getAnimations().length===0);
+      assert.equal(await motionPage.locator('.chapter-nav-toggle').getAttribute('aria-expanded'),'true');
+      if(!disableAnimations) {
+        const count=await motionPage.evaluate(()=>window.chapterAnimationFrames.length);
+        await motionPage.evaluate(()=>window.scrollTo({top:document.querySelector('#purpose').offsetTop-88,behavior:'instant'}));
+        await motionPage.waitForFunction(()=>document.querySelector('.chapter-nav [aria-current="location"]')?.hash==='#purpose');
+        assert.ok(await motionPage.evaluate(count=>window.chapterAnimationFrames.length>count,count),'滚动切换当前章节也应触发动效');
+        const settledCount=await motionPage.evaluate(()=>window.chapterAnimationFrames.length);
+        await motionPage.evaluate(()=>window.scrollBy({top:20,behavior:'instant'}));
+        await motionPage.waitForTimeout(80);
+        assert.equal(await motionPage.evaluate(()=>window.chapterAnimationFrames.length),settledCount,'同一章节内滚动不应反复创建动画');
+        assert.equal(await motionPage.evaluate(()=>window.chapterAnimationFrames.every(record=>record.frames.every(frame=>Object.keys(frame).every(key=>['opacity','transform'].includes(key))))),true);
+        await motionPage.evaluate(()=>document.querySelector('.chapter-nav-toggle').click());
+        await motionPage.emulateMedia({reducedMotion:'reduce'});
+        await motionPage.waitForFunction(()=>document.querySelector('.chapter-nav-links').hidden&&document.querySelector('.chapter-nav-links').getAnimations().length===0);
+        await motionPage.evaluate(()=>document.querySelector('.chapter-nav-toggle').click());
+      }
+      await motionPage.emulateMedia({reducedMotion:'reduce'});
+      const reduced=await motionPage.evaluate(()=>{
+        document.querySelector('.chapter-nav-toggle').click();
+        const links=document.querySelector('.chapter-nav-links');
+        return {hidden:links.hidden,animated:links.getAnimations().length>0};
+      });
+      assert.deepEqual(reduced,{hidden:true,animated:false});
+      await motion.close();
+    }
     const wide=await browser.newContext({viewport:{width:1920,height:1080},reducedMotion:'reduce'});
     const widePage=await wide.newPage();
     await widePage.goto('http://127.0.0.1:4180/',{waitUntil:'domcontentloaded'});

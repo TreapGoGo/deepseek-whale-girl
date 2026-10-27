@@ -5,19 +5,74 @@ const chapterNav = document.querySelector('.chapter-nav');
 if (chapterNav) {
   const chapterToggle = chapterNav.querySelector('.chapter-nav-toggle');
   const chapterLinks = chapterNav.querySelector('.chapter-nav-links');
+  const chapterMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const chapterViewport = window.matchMedia('(min-width: 1440px) and (min-height: 500px)');
+  let panelAnimation = null;
+  let highlightAnimation = null;
+
+  function canAnimateChapter(element) {
+    return !chapterMotion.matches && chapterViewport.matches && typeof element.animate === 'function';
+  }
+
+  function cancelPanelAnimation() {
+    if (!panelAnimation) return;
+    panelAnimation.onfinish = null;
+    panelAnimation.cancel();
+    panelAnimation = null;
+  }
+
+  function setChapterExpanded(expanded) {
+    const wasHidden = chapterLinks.hidden;
+    // 快速反向切换时从当前画面继续，避免旧回调覆盖最新状态。
+    const style = panelAnimation ? getComputedStyle(chapterLinks) : null;
+    const from = style ? { opacity: style.opacity, transform: style.transform } : null;
+    cancelPanelAnimation();
+    chapterToggle.setAttribute('aria-expanded', String(expanded));
+    chapterNav.classList.toggle('is-collapsed', !expanded);
+    chapterLinks.toggleAttribute('inert', !expanded);
+    chapterLinks.setAttribute('aria-hidden', String(!expanded));
+    chapterToggle.querySelector('span').textContent = expanded ? '收起' : '展开';
+    chapterToggle.setAttribute('aria-label', expanded ? '收起章节导航' : '展开章节导航');
+    if (expanded) chapterLinks.hidden = false;
+
+    if (!canAnimateChapter(chapterLinks) || (wasHidden && !expanded)) {
+      chapterLinks.hidden = !expanded;
+      return;
+    }
+    const visible = { opacity: 1, transform: 'translateX(0)' };
+    const concealed = { opacity: 0, transform: 'translateX(-4px)' };
+    const animation = chapterLinks.animate(
+      [from || (expanded ? concealed : visible), expanded ? visible : concealed],
+      { duration: 160, easing: 'cubic-bezier(.2, .7, .2, 1)', fill: 'forwards' }
+    );
+    panelAnimation = animation;
+    animation.onfinish = () => {
+      if (panelAnimation !== animation) return;
+      chapterLinks.hidden = !expanded;
+      panelAnimation = null;
+      animation.cancel();
+    };
+  }
+
+  function settleChapterMotion() {
+    if (!chapterMotion.matches && chapterViewport.matches) return;
+    cancelPanelAnimation();
+    if (highlightAnimation) highlightAnimation.cancel();
+    chapterLinks.hidden = chapterToggle.getAttribute('aria-expanded') !== 'true';
+  }
+  for (const query of [chapterMotion, chapterViewport]) {
+    if (query.addEventListener) query.addEventListener('change', settleChapterMotion);
+    else if (query.addListener) query.addListener(settleChapterMotion);
+  }
   chapterToggle.hidden = false;
   chapterToggle.addEventListener('click', () => {
-    const expanded = chapterToggle.getAttribute('aria-expanded') === 'true';
-    chapterToggle.setAttribute('aria-expanded', String(!expanded));
-    chapterLinks.hidden = expanded;
-    chapterNav.classList.toggle('is-collapsed', expanded);
-    chapterToggle.querySelector('span').textContent = expanded ? '展开' : '收起';
-    chapterToggle.setAttribute('aria-label', expanded ? '展开章节导航' : '收起章节导航');
+    setChapterExpanded(chapterToggle.getAttribute('aria-expanded') !== 'true');
   });
   const chapters = [...chapterNav.querySelectorAll('a[href^="#"]')]
     .map(link => ({ link, target: document.getElementById(link.hash.slice(1)) }))
     .filter(chapter => chapter.target);
   let chapterFrame = 0;
+  let currentChapter = null;
 
   function updateCurrentChapter() {
     chapterFrame = 0;
@@ -26,9 +81,19 @@ if (chapterNav) {
     for (const chapter of chapters) {
       if (chapter.target.getBoundingClientRect().top <= offset) current = chapter;
     }
+    if (current === currentChapter) return;
+    const previous = currentChapter;
+    currentChapter = current;
     for (const chapter of chapters) {
       if (chapter === current) chapter.link.setAttribute('aria-current', 'location');
       else chapter.link.removeAttribute('aria-current');
+    }
+    if (highlightAnimation) highlightAnimation.cancel();
+    if (previous && current && !chapterLinks.hidden && chapterToggle.getAttribute('aria-expanded') === 'true' && canAnimateChapter(current.link)) {
+      highlightAnimation = current.link.animate(
+        [{ opacity: .72, transform: 'translateX(-2px)' }, { opacity: 1, transform: 'translateX(0)' }],
+        { duration: 160, easing: 'ease-out' }
+      );
     }
   }
 
