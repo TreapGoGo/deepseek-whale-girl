@@ -83,6 +83,17 @@ async function main() {
         await page.screenshot({path:path.join(review,'chapters-1440-collapsed.png')});
         await page.mouse.move(800,250);
         await page.waitForFunction(()=>getComputedStyle(document.querySelector('.chapter-nav-toggle')).opacity==='0');
+        // 左侧感应区覆盖整个高度，不限于展开按钮附近。
+        for (const y of [150,850]) {
+          await page.mouse.move(4,y);
+          await page.waitForFunction(()=>getComputedStyle(document.querySelector('.chapter-nav-toggle')).opacity==='1');
+          await page.mouse.move(800,250);
+          await page.waitForFunction(()=>getComputedStyle(document.querySelector('.chapter-nav-toggle')).opacity==='0');
+        }
+        assert.equal(await page.locator('.brand').evaluate(a=>{
+          const r=a.getBoundingClientRect();
+          return document.elementFromPoint(r.left+r.width/2,r.top+r.height/2)?.closest('.brand')===a;
+        }),true,'感应区不能挡住顶栏链接');
         await chapterToggle.focus();
         await page.keyboard.press('Tab');
         await page.keyboard.press('Shift+Tab');
@@ -192,6 +203,11 @@ async function main() {
     await widePage.goto('http://127.0.0.1:4180/',{waitUntil:'domcontentloaded'});
     assert.equal(await widePage.locator('.chapter-nav').isVisible(),true);
     await widePage.screenshot({path:path.join(review,'chapters-1920-home.png')});
+    await widePage.locator('.chapter-nav-toggle').click();
+    await widePage.mouse.move(600,250);
+    await widePage.waitForFunction(()=>getComputedStyle(document.querySelector('.chapter-nav-toggle')).opacity==='0');
+    await widePage.mouse.move(4,1040);
+    await widePage.waitForFunction(()=>getComputedStyle(document.querySelector('.chapter-nav-toggle')).opacity==='1');
     await widePage.setViewportSize({width:1439,height:900});
     assert.equal(await widePage.locator('.chapter-nav').isVisible(),false);
     await widePage.setViewportSize({width:1440,height:480});

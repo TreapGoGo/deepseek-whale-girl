@@ -24,7 +24,7 @@ img { display: block; max-width: 100%; }
 .site-shell { max-width: 1440px; margin: 0 auto; overflow: clip; background: var(--paper); }
 .chapter-nav { display: none; }
 @media (min-width: 1440px) and (min-height: 500px) {
-  .chapter-nav { position: fixed; top: max(108px, calc(50vh - 140px)); left: max(16px, calc((100vw - 1440px) / 2 - 132px)); z-index: 5; display: grid; gap: 4px; width: 88px; max-height: calc(100dvh - 132px); padding: 8px 0; border-radius: var(--radius-md); background: rgba(246, 248, 252, .92); backdrop-filter: blur(16px); font-size: 13px; line-height: 1.6; }
+  .chapter-nav { --chapter-left: max(16px, calc((100vw - 1440px) / 2 - 132px)); --chapter-width: 88px; position: fixed; top: max(108px, calc(50vh - 140px)); left: var(--chapter-left); z-index: 5; display: grid; gap: 4px; width: var(--chapter-width); max-height: calc(100dvh - 132px); padding: 8px 0; border-radius: var(--radius-md); background: rgba(246, 248, 252, .92); backdrop-filter: blur(16px); font-size: 13px; line-height: 1.6; }
   .chapter-nav-links { display: grid; gap: 4px; max-height: calc(100dvh - 200px); overflow-y: auto; }
   .chapter-nav-toggle { display: flex; align-items: center; gap: 6px; min-height: 44px; margin-bottom: 4px; padding: 8px 6px; border: 0; color: var(--ink-soft); background: transparent; text-align: left; cursor: pointer; }
   .chapter-nav-toggle svg { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: transform .16s ease; }
@@ -37,8 +37,8 @@ img { display: block; max-width: 100%; }
   .chapter-nav a[aria-current="location"] { color: var(--blue-deep); background: var(--blue-pale); font-weight: 750; }
   .chapter-nav a:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
   .chapter-nav.is-collapsed { background: transparent; backdrop-filter: none; }
-  /* 扩大收起后的鼠标感应范围，键盘入口保持可聚焦。 */
-  .chapter-nav.is-collapsed::before { content: ""; position: absolute; inset: -20px -8px; z-index: -1; }
+  /* 收起后的感应区覆盖左侧留白的整个高度，不延伸到正文。 */
+  .chapter-nav.is-collapsed::before { content: ""; position: fixed; inset: 0 auto 0 0; width: calc(var(--chapter-left) + var(--chapter-width) + 8px); z-index: -1; }
   .chapter-nav.is-collapsed .chapter-nav-toggle { border-radius: 8px; background: rgba(246, 248, 252, .92); backdrop-filter: blur(16px); opacity: 0; pointer-events: none; transition: opacity .16s ease; }
   .chapter-nav.is-collapsed:hover .chapter-nav-toggle, .chapter-nav.is-collapsed .chapter-nav-toggle:focus-visible { opacity: 1; pointer-events: auto; }
 }
