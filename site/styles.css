@@ -22,6 +22,21 @@ button { font: inherit; }
 img { display: block; max-width: 100%; }
 
 .site-shell { max-width: 1440px; margin: 0 auto; overflow: clip; background: var(--paper); }
+.chapter-nav { display: none; }
+@media (min-width: 1440px) and (min-height: 500px) {
+  .chapter-nav { position: fixed; top: max(108px, calc(50vh - 140px)); left: max(16px, calc((100vw - 1440px) / 2 - 132px)); z-index: 5; display: grid; gap: 4px; width: 88px; max-height: calc(100dvh - 132px); overflow-y: auto; padding: 8px 0; border-radius: var(--radius-md); background: rgba(246, 248, 252, .92); backdrop-filter: blur(16px); font-size: 13px; line-height: 1.6; }
+  .chapter-nav-links { display: grid; gap: 4px; }
+  .chapter-nav-toggle { display: flex; align-items: center; gap: 6px; min-height: 44px; margin-bottom: 4px; padding: 8px 6px; border: 0; color: var(--ink-soft); background: transparent; text-align: left; cursor: pointer; }
+  .chapter-nav-toggle svg { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: transform .16s ease; }
+  .chapter-nav-toggle[aria-expanded="false"] svg { transform: rotate(180deg); }
+  .chapter-nav-toggle[hidden], .chapter-nav-links[hidden] { display: none; }
+  .chapter-nav-toggle:hover { color: var(--blue-deep); background: var(--blue-pale); }
+  .chapter-nav-toggle:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+  .chapter-nav a { display: flex; align-items: center; min-height: 44px; padding: 8px 6px; border-radius: 8px; color: var(--ink); cursor: pointer; }
+  .chapter-nav a:hover { color: var(--blue-deep); background: var(--blue-pale); }
+  .chapter-nav a[aria-current="location"] { color: var(--blue-deep); background: var(--blue-pale); font-weight: 750; }
+  .chapter-nav a:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+}
 .topbar { min-height: 76px; padding: 18px clamp(22px, 5vw, 76px); display: flex; align-items: center; justify-content: space-between; gap: 28px; border-bottom: 1px solid rgba(216, 224, 239, .9); background: rgba(246, 248, 252, .92); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(16px); }
 .brand { display: flex; align-items: center; gap: 12px; min-width: max-content; }
 .brand-mark { display: block; width: 42px; height: 42px; flex: none; }

@@ -1,3 +1,5 @@
 .community-review/
+.taste-skill/
+docs/
 __pycache__/
 node_modules/

@@ -1,4 +1,49 @@
 const status = document.querySelector('#copy-status');
+
+// 原生锚点负责跳转与历史记录，脚本只维护阅读位置。
+const chapterNav = document.querySelector('.chapter-nav');
+if (chapterNav) {
+  const chapterToggle = chapterNav.querySelector('.chapter-nav-toggle');
+  const chapterLinks = chapterNav.querySelector('.chapter-nav-links');
+  chapterToggle.hidden = false;
+  chapterToggle.addEventListener('click', () => {
+    const expanded = chapterToggle.getAttribute('aria-expanded') === 'true';
+    chapterToggle.setAttribute('aria-expanded', String(!expanded));
+    chapterLinks.hidden = expanded;
+    chapterToggle.querySelector('span').textContent = expanded ? '展开' : '收起';
+    chapterToggle.setAttribute('aria-label', expanded ? '展开章节导航' : '收起章节导航');
+  });
+  const chapters = [...chapterNav.querySelectorAll('a[href^="#"]')]
+    .map(link => ({ link, target: document.getElementById(link.hash.slice(1)) }))
+    .filter(chapter => chapter.target);
+  let chapterFrame = 0;
+
+  function updateCurrentChapter() {
+    chapterFrame = 0;
+    const offset = (parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0) + 2;
+    let current = chapters[0];
+    for (const chapter of chapters) {
+      if (chapter.target.getBoundingClientRect().top <= offset) current = chapter;
+    }
+    for (const chapter of chapters) {
+      if (chapter === current) chapter.link.setAttribute('aria-current', 'location');
+      else chapter.link.removeAttribute('aria-current');
+    }
+  }
+
+  function scheduleChapterUpdate() {
+    if (!chapterFrame) chapterFrame = requestAnimationFrame(updateCurrentChapter);
+  }
+
+  window.addEventListener('scroll', scheduleChapterUpdate, { passive: true });
+  window.addEventListener('resize', scheduleChapterUpdate);
+  window.addEventListener('hashchange', scheduleChapterUpdate);
+  window.addEventListener('pageshow', scheduleChapterUpdate);
+  // 图片加载和画廊重排也可能移动章节边界。
+  if ('ResizeObserver' in window) new ResizeObserver(scheduleChapterUpdate).observe(document.querySelector('main'));
+  scheduleChapterUpdate();
+}
+
 const copyIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg>';
 
 function setStatus(message) {

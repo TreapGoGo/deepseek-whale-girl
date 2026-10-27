@@ -46,6 +46,59 @@ async function main() {
       const heights = await page.locator('.hero-card').evaluateAll(cards=>cards.map(card=>[card.querySelector('.hero-card-copy').getBoundingClientRect().height,card.querySelector('.hero-card-image').getBoundingClientRect().height]));
       if (width > 600) for (const [left,right] of heights) assert.ok(Math.abs(left-right)<2,`asset alignment at ${width}: ${left}/${right}`);
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`overflow at ${width}`);
+      // 章节目录复用首页入口；窄屏继续使用顶部菜单。
+      const chapters = page.locator('.chapter-nav');
+      assert.equal(await chapters.count(),1);
+      assert.deepEqual(await chapters.locator('a').evaluateAll(links=>links.map(a=>[a.hash,a.textContent.trim()])),
+        await page.locator('.nav-home-menu a').evaluateAll(links=>links.map(a=>[a.hash,a.textContent.trim()])));
+      assert.equal(await chapters.isVisible(),width>=1440);
+      if (width>=1440) {
+        await page.emulateMedia({reducedMotion:'reduce'});
+        const chapterToggle=chapters.locator('.chapter-nav-toggle');
+        assert.equal(await chapterToggle.count(),1);
+        assert.equal((await chapterToggle.textContent()).trim(),'收起');
+        assert.equal(await chapterToggle.locator('svg[aria-hidden="true"]').count(),1);
+        await chapterToggle.click();
+        assert.equal(await chapterToggle.getAttribute('aria-expanded'),'false');
+        assert.equal((await chapterToggle.textContent()).trim(),'展开');
+        assert.equal(await chapters.locator('a').first().isVisible(),false);
+        await page.screenshot({path:path.join(review,'chapters-1440-collapsed.png')});
+        await chapterToggle.press('Enter');
+        assert.equal(await chapterToggle.getAttribute('aria-expanded'),'true');
+        assert.equal(await chapters.locator('a').first().isVisible(),true);
+        await page.screenshot({path:path.join(review,'chapters-1440-home.png')});
+        for (const id of ['prompts','purpose','links','gallery']) {
+          await chapters.locator(`a[href="#${id}"]`).click();
+          await page.waitForFunction(id=>document.querySelector('.chapter-nav [aria-current="location"]')?.hash==='#'+id,id);
+          assert.equal(new URL(page.url()).hash,'#'+id);
+          const bounds=await page.evaluate(id=>({target:document.getElementById(id).getBoundingClientRect().top,header:document.querySelector('.topbar').getBoundingClientRect().bottom}),id);
+          assert.ok(bounds.target>=bounds.header,`chapter hidden by header: ${id}`);
+          const clear=await page.evaluate(id=>{
+            const nav=document.querySelector('.chapter-nav').getBoundingClientRect();
+            const content=document.querySelector(({prompts:'.hero-stack',purpose:'.info-section > div',links:'.links-heading',gallery:'.gallery-heading'})[id]).getBoundingClientRect();
+            return nav.left>=0&&nav.right+4<=content.left;
+          },id);
+          assert.ok(clear,`chapter navigation overlaps content: ${id}`);
+          await page.waitForTimeout(250);
+          await page.waitForFunction(()=>[...document.querySelectorAll('main img')].filter(img=>{const r=img.getBoundingClientRect();return r.bottom>0&&r.top<innerHeight;}).every(img=>img.complete));
+          await page.screenshot({path:path.join(review,`chapters-1440-${id}.png`)});
+        }
+        // 手动滚动不依赖 hash；整个长画廊内始终保留画廊状态。
+        for (const id of ['purpose','links','gallery']) {
+          await page.evaluate(id=>window.scrollTo({top:document.getElementById(id).getBoundingClientRect().top+scrollY+140,behavior:'instant'}),id);
+          await page.waitForFunction(id=>document.querySelector('.chapter-nav [aria-current="location"]')?.hash==='#'+id,id);
+          assert.equal(await chapters.locator('[aria-current]').count(),1);
+        }
+        await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
+        await page.waitForFunction(()=>document.querySelector('.chapter-nav [aria-current="location"]')?.hash==='#prompts');
+        const firstChapter=chapters.locator('a').first();
+        await firstChapter.focus();
+        await page.keyboard.press('Tab');
+        assert.equal(await chapters.locator('a[href="#purpose"]').evaluate(a=>a===document.activeElement),true);
+        await page.keyboard.press('Enter');
+        await page.waitForFunction(()=>location.hash==='#purpose');
+        await page.emulateMedia({reducedMotion:'no-preference'});
+      }
       const toggle=page.locator('.handmade-mode-toggle');
       await toggle.click();
       assert.equal(await page.locator('.masonry-gallery .gallery-tile').count(),handmade);
@@ -98,6 +151,27 @@ async function main() {
       await context.close();
       console.log('PASS',width);
     }
+    // 无脚本时四个原生链接仍可跳转，不依赖滚动增强逻辑。
+    const plain=await browser.newContext({viewport:{width:1440,height:900},javaScriptEnabled:false,reducedMotion:'reduce'});
+    const plainPage=await plain.newPage();
+    await plainPage.goto('http://127.0.0.1:4180/',{waitUntil:'domcontentloaded'});
+    assert.equal(await plainPage.locator('.chapter-nav button').isVisible(),false);
+    for (const id of ['prompts','purpose','links','gallery']) {
+      await plainPage.locator(`.chapter-nav a[href="#${id}"]`).click();
+      assert.equal(new URL(plainPage.url()).hash,'#'+id);
+    }
+    await plain.close();
+    results.push({chapterNavigation:true,noScriptAnchors:true});
+    const wide=await browser.newContext({viewport:{width:1920,height:1080},reducedMotion:'reduce'});
+    const widePage=await wide.newPage();
+    await widePage.goto('http://127.0.0.1:4180/',{waitUntil:'domcontentloaded'});
+    assert.equal(await widePage.locator('.chapter-nav').isVisible(),true);
+    await widePage.screenshot({path:path.join(review,'chapters-1920-home.png')});
+    await widePage.setViewportSize({width:1439,height:900});
+    assert.equal(await widePage.locator('.chapter-nav').isVisible(),false);
+    await widePage.setViewportSize({width:1440,height:480});
+    assert.equal(await widePage.locator('.chapter-nav').isVisible(),false);
+    await wide.close();
     // A real touch-capable context: buttons stay usable without hover and license actions fit.
     const touch=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,permissions:['clipboard-read','clipboard-write'],acceptDownloads:true});
     const mobile=await touch.newPage();
