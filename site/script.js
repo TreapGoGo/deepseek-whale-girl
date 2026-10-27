@@ -1,4 +1,115 @@
 const status = document.querySelector('#copy-status');
+
+// Native anchors handle navigation and history; the script tracks the current chapter.
+const chapterNav = document.querySelector('.chapter-nav');
+if (chapterNav) {
+  const chapterToggle = chapterNav.querySelector('.chapter-nav-toggle');
+  const chapterLinks = chapterNav.querySelector('.chapter-nav-links');
+  const chapterMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const chapterViewport = window.matchMedia('(min-width: 1440px) and (min-height: 500px)');
+  let panelAnimation = null;
+  let highlightAnimation = null;
+
+  function canAnimateChapter(element) {
+    return !chapterMotion.matches && chapterViewport.matches && typeof element.animate === 'function';
+  }
+
+  function cancelPanelAnimation() {
+    if (!panelAnimation) return;
+    panelAnimation.onfinish = null;
+    panelAnimation.cancel();
+    panelAnimation = null;
+  }
+
+  function setChapterExpanded(expanded) {
+    const wasHidden = chapterLinks.hidden;
+    // Resume from the current frame on rapid reversals so stale callbacks cannot overwrite the latest state.
+    const style = panelAnimation ? getComputedStyle(chapterLinks) : null;
+    const from = style ? { opacity: style.opacity, transform: style.transform } : null;
+    cancelPanelAnimation();
+    chapterToggle.setAttribute('aria-expanded', String(expanded));
+    chapterNav.classList.toggle('is-collapsed', !expanded);
+    chapterLinks.toggleAttribute('inert', !expanded);
+    chapterLinks.setAttribute('aria-hidden', String(!expanded));
+    chapterToggle.querySelector('span').textContent = expanded ? '收起' : '展开';
+    chapterToggle.setAttribute('aria-label', expanded ? '收起章节导航' : '展开章节导航');
+    if (expanded) chapterLinks.hidden = false;
+
+    if (!canAnimateChapter(chapterLinks) || (wasHidden && !expanded)) {
+      chapterLinks.hidden = !expanded;
+      return;
+    }
+    const visible = { opacity: 1, transform: 'translateX(0)' };
+    const concealed = { opacity: 0, transform: 'translateX(-4px)' };
+    const animation = chapterLinks.animate(
+      [from || (expanded ? concealed : visible), expanded ? visible : concealed],
+      { duration: 160, easing: 'cubic-bezier(.2, .7, .2, 1)', fill: 'forwards' }
+    );
+    panelAnimation = animation;
+    animation.onfinish = () => {
+      if (panelAnimation !== animation) return;
+      chapterLinks.hidden = !expanded;
+      panelAnimation = null;
+      animation.cancel();
+    };
+  }
+
+  function settleChapterMotion() {
+    if (!chapterMotion.matches && chapterViewport.matches) return;
+    cancelPanelAnimation();
+    if (highlightAnimation) highlightAnimation.cancel();
+    chapterLinks.hidden = chapterToggle.getAttribute('aria-expanded') !== 'true';
+  }
+  for (const query of [chapterMotion, chapterViewport]) {
+    if (query.addEventListener) query.addEventListener('change', settleChapterMotion);
+    else if (query.addListener) query.addListener(settleChapterMotion);
+  }
+  chapterToggle.hidden = false;
+  chapterToggle.addEventListener('click', () => {
+    setChapterExpanded(chapterToggle.getAttribute('aria-expanded') !== 'true');
+  });
+  const chapters = [...chapterNav.querySelectorAll('a[href^="#"]')]
+    .map(link => ({ link, target: document.getElementById(link.hash.slice(1)) }))
+    .filter(chapter => chapter.target);
+  let chapterFrame = 0;
+  let currentChapter = null;
+
+  function updateCurrentChapter() {
+    chapterFrame = 0;
+    const offset = (parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0) + 2;
+    let current = chapters[0];
+    for (const chapter of chapters) {
+      if (chapter.target.getBoundingClientRect().top <= offset) current = chapter;
+    }
+    if (current === currentChapter) return;
+    const previous = currentChapter;
+    currentChapter = current;
+    for (const chapter of chapters) {
+      if (chapter === current) chapter.link.setAttribute('aria-current', 'location');
+      else chapter.link.removeAttribute('aria-current');
+    }
+    if (highlightAnimation) highlightAnimation.cancel();
+    if (previous && current && !chapterLinks.hidden && chapterToggle.getAttribute('aria-expanded') === 'true' && canAnimateChapter(current.link)) {
+      highlightAnimation = current.link.animate(
+        [{ opacity: .72, transform: 'translateX(-2px)' }, { opacity: 1, transform: 'translateX(0)' }],
+        { duration: 160, easing: 'ease-out' }
+      );
+    }
+  }
+
+  function scheduleChapterUpdate() {
+    if (!chapterFrame) chapterFrame = requestAnimationFrame(updateCurrentChapter);
+  }
+
+  window.addEventListener('scroll', scheduleChapterUpdate, { passive: true });
+  window.addEventListener('resize', scheduleChapterUpdate);
+  window.addEventListener('hashchange', scheduleChapterUpdate);
+  window.addEventListener('pageshow', scheduleChapterUpdate);
+  // Image loading and gallery reflow can also move chapter boundaries.
+  if ('ResizeObserver' in window) new ResizeObserver(scheduleChapterUpdate).observe(document.querySelector('main'));
+  scheduleChapterUpdate();
+}
+
 const copyIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg>';
 
 function setStatus(message) {

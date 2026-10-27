@@ -46,6 +46,95 @@ async function main() {
       const heights = await page.locator('.hero-card').evaluateAll(cards=>cards.map(card=>[card.querySelector('.hero-card-copy').getBoundingClientRect().height,card.querySelector('.hero-card-image').getBoundingClientRect().height]));
       if (width > 600) for (const [left,right] of heights) assert.ok(Math.abs(left-right)<2,`asset alignment at ${width}: ${left}/${right}`);
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`overflow at ${width}`);
+      // Reuse the homepage chapter links; narrow screens keep the top menu.
+      const chapters = page.locator('.chapter-nav');
+      assert.equal(await chapters.count(),1);
+      assert.deepEqual(await chapters.locator('a').evaluateAll(links=>links.map(a=>[a.hash,a.textContent.trim()])),
+        await page.locator('.nav-home-menu a').evaluateAll(links=>links.map(a=>[a.hash,a.textContent.trim()])));
+      assert.equal(await chapters.isVisible(),width>=1440);
+      if (width>=1440) {
+        await page.emulateMedia({reducedMotion:'reduce'});
+        const chapterToggle=chapters.locator('.chapter-nav-toggle');
+        assert.equal(await chapterToggle.count(),1);
+        assert.equal((await chapterToggle.textContent()).trim(),'收起');
+        assert.equal(await chapterToggle.locator('svg[aria-hidden="true"]').count(),1);
+        const activeColor=await chapters.locator('[aria-current="location"]').evaluate(a=>getComputedStyle(a).backgroundColor);
+        const candidate=chapters.locator('a[href="#purpose"]');
+        const candidateColor=await candidate.evaluate(a=>getComputedStyle(a).color);
+        await candidate.hover();
+        const hoverColor=await candidate.evaluate(a=>getComputedStyle(a).backgroundColor);
+        assert.equal(hoverColor,'rgba(0, 0, 0, 0)','候选项悬停不显示背景');
+        assert.notEqual(await candidate.evaluate(a=>getComputedStyle(a).color),candidateColor);
+        assert.equal(await chapters.locator('[aria-current="location"]').evaluate(a=>getComputedStyle(a).backgroundColor),activeColor);
+        await chapterToggle.hover();
+        await page.waitForFunction(()=>document.querySelector('.chapter-nav-toggle').matches(':hover'));
+        assert.equal(await chapterToggle.evaluate(b=>getComputedStyle(b).backgroundColor),'rgba(0, 0, 0, 0)','收起按钮悬停不显示高亮背景');
+        await chapterToggle.click();
+        assert.equal(await chapterToggle.getAttribute('aria-expanded'),'false');
+        assert.equal((await chapterToggle.textContent()).trim(),'展开');
+        assert.equal(await chapters.locator('a').first().isVisible(),false);
+        const collapsedBounds=await chapters.boundingBox();
+        await page.mouse.move(800,250);
+        await page.waitForFunction(()=>getComputedStyle(document.querySelector('.chapter-nav-toggle')).opacity==='0');
+        assert.equal(await chapters.evaluate(n=>getComputedStyle(n).backgroundColor),'rgba(0, 0, 0, 0)');
+        await page.screenshot({path:path.join(review,'chapters-1440-collapsed-hidden.png')});
+        await page.mouse.move(collapsedBounds.x-4,collapsedBounds.y+20);
+        await page.waitForFunction(()=>getComputedStyle(document.querySelector('.chapter-nav-toggle')).opacity==='1');
+        await page.screenshot({path:path.join(review,'chapters-1440-collapsed.png')});
+        await page.mouse.move(800,250);
+        await page.waitForFunction(()=>getComputedStyle(document.querySelector('.chapter-nav-toggle')).opacity==='0');
+        // The left trigger spans the full height, not just the area around the expand button.
+        for (const y of [150,850]) {
+          await page.mouse.move(4,y);
+          await page.waitForFunction(()=>getComputedStyle(document.querySelector('.chapter-nav-toggle')).opacity==='1');
+          await page.mouse.move(800,250);
+          await page.waitForFunction(()=>getComputedStyle(document.querySelector('.chapter-nav-toggle')).opacity==='0');
+        }
+        assert.equal(await page.locator('.brand').evaluate(a=>{
+          const r=a.getBoundingClientRect();
+          return document.elementFromPoint(r.left+r.width/2,r.top+r.height/2)?.closest('.brand')===a;
+        }),true,'感应区不能挡住顶栏链接');
+        await chapterToggle.focus();
+        await page.keyboard.press('Tab');
+        await page.keyboard.press('Shift+Tab');
+        assert.equal(await chapterToggle.evaluate(b=>b===document.activeElement),true);
+        await page.waitForFunction(()=>getComputedStyle(document.querySelector('.chapter-nav-toggle')).opacity==='1');
+        await chapterToggle.press('Enter');
+        assert.equal(await chapterToggle.getAttribute('aria-expanded'),'true');
+        assert.equal(await chapters.locator('a').first().isVisible(),true);
+        await page.screenshot({path:path.join(review,'chapters-1440-home.png')});
+        for (const id of ['prompts','purpose','links','gallery']) {
+          await chapters.locator(`a[href="#${id}"]`).click();
+          await page.waitForFunction(id=>document.querySelector('.chapter-nav [aria-current="location"]')?.hash==='#'+id,id);
+          assert.equal(new URL(page.url()).hash,'#'+id);
+          const bounds=await page.evaluate(id=>({target:document.getElementById(id).getBoundingClientRect().top,header:document.querySelector('.topbar').getBoundingClientRect().bottom}),id);
+          assert.ok(bounds.target>=bounds.header,`chapter hidden by header: ${id}`);
+          const clear=await page.evaluate(id=>{
+            const nav=document.querySelector('.chapter-nav').getBoundingClientRect();
+            const content=document.querySelector(({prompts:'.hero-stack',purpose:'.info-section > div',links:'.links-heading',gallery:'.gallery-heading'})[id]).getBoundingClientRect();
+            return nav.left>=0&&nav.right+4<=content.left;
+          },id);
+          assert.ok(clear,`chapter navigation overlaps content: ${id}`);
+          await page.waitForTimeout(250);
+          await page.waitForFunction(()=>[...document.querySelectorAll('main img')].filter(img=>{const r=img.getBoundingClientRect();return r.bottom>0&&r.top<innerHeight;}).every(img=>img.complete));
+          await page.screenshot({path:path.join(review,`chapters-1440-${id}.png`)});
+        }
+        // Manual scrolling works independently of the hash; the full gallery keeps its chapter active.
+        for (const id of ['purpose','links','gallery']) {
+          await page.evaluate(id=>window.scrollTo({top:document.getElementById(id).getBoundingClientRect().top+scrollY+140,behavior:'instant'}),id);
+          await page.waitForFunction(id=>document.querySelector('.chapter-nav [aria-current="location"]')?.hash==='#'+id,id);
+          assert.equal(await chapters.locator('[aria-current]').count(),1);
+        }
+        await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
+        await page.waitForFunction(()=>document.querySelector('.chapter-nav [aria-current="location"]')?.hash==='#prompts');
+        const firstChapter=chapters.locator('a').first();
+        await firstChapter.focus();
+        await page.keyboard.press('Tab');
+        assert.equal(await chapters.locator('a[href="#purpose"]').evaluate(a=>a===document.activeElement),true);
+        await page.keyboard.press('Enter');
+        await page.waitForFunction(()=>location.hash==='#purpose');
+        await page.emulateMedia({reducedMotion:'no-preference'});
+      }
       const toggle=page.locator('.handmade-mode-toggle');
       await toggle.click();
       assert.equal(await page.locator('.masonry-gallery .gallery-tile').count(),handmade);
@@ -98,6 +187,89 @@ async function main() {
       await context.close();
       console.log('PASS',width);
     }
+    // All four native anchors remain usable without JavaScript or scroll tracking.
+    const plain=await browser.newContext({viewport:{width:1440,height:900},javaScriptEnabled:false,reducedMotion:'reduce'});
+    const plainPage=await plain.newPage();
+    await plainPage.goto('http://127.0.0.1:4180/',{waitUntil:'domcontentloaded'});
+    assert.equal(await plainPage.locator('.chapter-nav button').isVisible(),false);
+    for (const id of ['prompts','purpose','links','gallery']) {
+      await plainPage.locator(`.chapter-nav a[href="#${id}"]`).click();
+      assert.equal(new URL(plainPage.url()).hash,'#'+id);
+    }
+    await plain.close();
+    results.push({chapterNavigation:true,noScriptAnchors:true});
+    // Animation is progressive enhancement; missing APIs and reduced motion retain immediate switching.
+    for (const disableAnimations of [false,true]) {
+      const motion=await browser.newContext({viewport:{width:1440,height:900},reducedMotion:'no-preference'});
+      await motion.addInitScript(disabled=>{
+        window.chapterAnimationFrames=[];
+        const animate=Element.prototype.animate;
+        if(disabled) Element.prototype.animate=undefined;
+        else Element.prototype.animate=function(frames,options) {
+          if(this.closest('.chapter-nav')) window.chapterAnimationFrames.push({tag:this.tagName,frames});
+          return animate.call(this,frames,options);
+        };
+      },disableAnimations);
+      const motionPage=await motion.newPage();
+      await motionPage.goto('http://127.0.0.1:4180/',{waitUntil:'domcontentloaded'});
+      const closing=await motionPage.evaluate(()=>{
+        document.querySelector('.chapter-nav-toggle').click();
+        const links=document.querySelector('.chapter-nav-links');
+        const animation=links.getAnimations()[0];
+        if(animation) { animation.pause(); animation.currentTime=80; }
+        return {hidden:links.hidden,animated:links.getAnimations().length>0};
+      });
+      assert.equal(closing.animated,!disableAnimations,'手动收起应播放动画，缺少 API 时直接切换');
+      if(!disableAnimations) {
+        await motionPage.screenshot({path:path.join(review,'chapters-closing-midpoint.png')});
+        await motionPage.evaluate(()=>document.querySelector('.chapter-nav-links').getAnimations()[0].play());
+      }
+      await motionPage.waitForFunction(()=>document.querySelector('.chapter-nav-links').hidden);
+      await motionPage.evaluate(()=>{
+        const button=document.querySelector('.chapter-nav-toggle');
+        button.click();button.click();button.click();
+      });
+      await motionPage.waitForFunction(()=>!document.querySelector('.chapter-nav-links').hidden&&document.querySelector('.chapter-nav-links').getAnimations().length===0);
+      assert.equal(await motionPage.locator('.chapter-nav-toggle').getAttribute('aria-expanded'),'true');
+      if(!disableAnimations) {
+        const count=await motionPage.evaluate(()=>window.chapterAnimationFrames.length);
+        await motionPage.evaluate(()=>window.scrollTo({top:document.querySelector('#purpose').offsetTop-88,behavior:'instant'}));
+        await motionPage.waitForFunction(()=>document.querySelector('.chapter-nav [aria-current="location"]')?.hash==='#purpose');
+        assert.ok(await motionPage.evaluate(count=>window.chapterAnimationFrames.length>count,count),'滚动切换当前章节也应触发动效');
+        const settledCount=await motionPage.evaluate(()=>window.chapterAnimationFrames.length);
+        await motionPage.evaluate(()=>window.scrollBy({top:20,behavior:'instant'}));
+        await motionPage.waitForTimeout(80);
+        assert.equal(await motionPage.evaluate(()=>window.chapterAnimationFrames.length),settledCount,'同一章节内滚动不应反复创建动画');
+        assert.equal(await motionPage.evaluate(()=>window.chapterAnimationFrames.every(record=>record.frames.every(frame=>Object.keys(frame).every(key=>['opacity','transform'].includes(key))))),true);
+        await motionPage.evaluate(()=>document.querySelector('.chapter-nav-toggle').click());
+        await motionPage.emulateMedia({reducedMotion:'reduce'});
+        await motionPage.waitForFunction(()=>document.querySelector('.chapter-nav-links').hidden&&document.querySelector('.chapter-nav-links').getAnimations().length===0);
+        await motionPage.evaluate(()=>document.querySelector('.chapter-nav-toggle').click());
+      }
+      await motionPage.emulateMedia({reducedMotion:'reduce'});
+      const reduced=await motionPage.evaluate(()=>{
+        document.querySelector('.chapter-nav-toggle').click();
+        const links=document.querySelector('.chapter-nav-links');
+        return {hidden:links.hidden,animated:links.getAnimations().length>0};
+      });
+      assert.deepEqual(reduced,{hidden:true,animated:false});
+      await motion.close();
+    }
+    const wide=await browser.newContext({viewport:{width:1920,height:1080},reducedMotion:'reduce'});
+    const widePage=await wide.newPage();
+    await widePage.goto('http://127.0.0.1:4180/',{waitUntil:'domcontentloaded'});
+    assert.equal(await widePage.locator('.chapter-nav').isVisible(),true);
+    await widePage.screenshot({path:path.join(review,'chapters-1920-home.png')});
+    await widePage.locator('.chapter-nav-toggle').click();
+    await widePage.mouse.move(600,250);
+    await widePage.waitForFunction(()=>getComputedStyle(document.querySelector('.chapter-nav-toggle')).opacity==='0');
+    await widePage.mouse.move(4,1040);
+    await widePage.waitForFunction(()=>getComputedStyle(document.querySelector('.chapter-nav-toggle')).opacity==='1');
+    await widePage.setViewportSize({width:1439,height:900});
+    assert.equal(await widePage.locator('.chapter-nav').isVisible(),false);
+    await widePage.setViewportSize({width:1440,height:480});
+    assert.equal(await widePage.locator('.chapter-nav').isVisible(),false);
+    await wide.close();
     // A real touch-capable context: buttons stay usable without hover and license actions fit.
     const touch=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,permissions:['clipboard-read','clipboard-write'],acceptDownloads:true});
     const mobile=await touch.newPage();
